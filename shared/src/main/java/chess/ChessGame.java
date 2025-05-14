@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -10,10 +11,14 @@ import java.util.Collection;
  */
 public class ChessGame
 {
+	private TeamColor teamToMove;
+	private final ChessBoard board;
 
 	public ChessGame()
 	{
-
+		teamToMove = TeamColor.WHITE;
+		board = new ChessBoard();
+		board.resetBoard();
 	}
 
 	/**
@@ -21,7 +26,7 @@ public class ChessGame
 	 */
 	public TeamColor getTeamTurn()
 	{
-		throw new RuntimeException("Not implemented");
+		return teamToMove;
 	}
 
 	/**
@@ -31,7 +36,7 @@ public class ChessGame
 	 */
 	public void setTeamTurn(TeamColor team)
 	{
-		throw new RuntimeException("Not implemented");
+		teamToMove = team;
 	}
 
 	/**
@@ -43,7 +48,39 @@ public class ChessGame
 	 */
 	public Collection<ChessMove> validMoves(ChessPosition startPosition)
 	{
-		throw new RuntimeException("Not implemented");
+		ChessPiece piece = board.getPiece(startPosition);
+		Collection<ChessMove> validMoves = new ArrayList<>();
+
+		if (piece == null)
+		{
+			return null;
+		}
+
+		// For legibility & debugging purposes. pieceMoves is a list of moves that a specific piece could make regarding
+		// its own movement rules. validMoves contains the list of moves that account for chess rules (such as check).
+		Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
+
+		for (ChessMove move : pieceMoves)
+		{
+			if (legalMove(move, board))
+			{
+				validMoves.add(move);
+			}
+		}
+
+		return validMoves;
+	}
+
+	/**
+	 * Checks whether the provided move places your king in check.
+	 *
+	 * @param move Chess move that is being checked.
+	 * @param board The relevant chess board object.
+	 * @return Whether the specified move places the king (of player who made the move) in check.
+	 */
+	public boolean legalMove(ChessMove move, ChessBoard board)
+	{
+		throw new RuntimeException("Not yet implemented.");
 	}
 
 	/**
