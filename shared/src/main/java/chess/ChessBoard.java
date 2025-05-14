@@ -3,6 +3,8 @@ package chess;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static java.lang.Math.abs;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -11,7 +13,7 @@ import java.util.Objects;
  */
 public class ChessBoard
 {
-	private ChessPiece[][] board;
+	private ChessPiece[][] boardState;
 
 	public ChessBoard()
 	{
@@ -26,7 +28,7 @@ public class ChessBoard
 	 */
 	public void addPiece(ChessPosition position, ChessPiece piece)
 	{
-		board[position.getRow() - 1][position.getColumn() - 1] = piece;
+		boardState[position.getRow() - 1][position.getColumn() - 1] = piece;
 	}
 
 	/**
@@ -38,7 +40,7 @@ public class ChessBoard
 	 */
 	public ChessPiece getPiece(ChessPosition position)
 	{
-		return board[position.getRow() - 1][position.getColumn() - 1];
+		return boardState[position.getRow() - 1][position.getColumn() - 1];
 	}
 
 	/**
@@ -56,14 +58,14 @@ public class ChessBoard
 
 	private void clearBoard()
 	{
-		board = new ChessPiece[8][8];
+		boardState = new ChessPiece[8][8];
 	}
 
 	private void pawnRow(int row, ChessGame.TeamColor color)
 	{
 		for(int col = 0; col < 8; col++)
 		{
-			board[row][col] = new ChessPiece(color, ChessPiece.PieceType.PAWN);
+			boardState[row][col] = new ChessPiece(color, ChessPiece.PieceType.PAWN);
 		}
 	}
 
@@ -75,21 +77,21 @@ public class ChessBoard
 			{
 				case 0:
 				case 7:
-					board[row][col] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
+					boardState[row][col] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
 					break;
 				case 1:
 				case 6:
-					board[row][col] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
+					boardState[row][col] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
 					break;
 				case 2:
 				case 5:
-					board[row][col] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
+					boardState[row][col] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
 					break;
 				case 3:
-					board[row][col] = new ChessPiece(color, ChessPiece.PieceType.QUEEN);
+					boardState[row][col] = new ChessPiece(color, ChessPiece.PieceType.QUEEN);
 					break;
 				case 4:
-					board[row][col] = new ChessPiece(color, ChessPiece.PieceType.KING);
+					boardState[row][col] = new ChessPiece(color, ChessPiece.PieceType.KING);
 					break;
 			}
 		}
@@ -103,13 +105,13 @@ public class ChessBoard
 			return false;
 		}
 		ChessBoard that = (ChessBoard) o;
-		return Objects.deepEquals(board, that.board);
+		return Objects.deepEquals(boardState, that.boardState);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Arrays.deepHashCode(board);
+		return Arrays.deepHashCode(boardState);
 	}
 
 	@Override
@@ -122,9 +124,9 @@ public class ChessBoard
 			for(int col = 0; col < 8; col++)
 			{
 				output.append("|");
-				if(board[row][col] != null)
+				if(boardState[row][col] != null)
 				{
-					output.append(board[row][col].toString());
+					output.append(boardState[row][col].toString());
 				}
 				else
 				{

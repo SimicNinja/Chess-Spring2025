@@ -13,14 +13,24 @@ import java.util.Objects;
  */
 public class ChessPiece
 {
-	ChessGame.TeamColor color;
-	ChessPiece.PieceType type;
-	MoveCalculator calculator;
+	private final ChessGame.TeamColor color;
+	private final ChessPiece.PieceType type;
+	private final boolean hasMoved;
+	private MoveCalculator calculator;
 
 	public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type)
 	{
 		color = pieceColor;
 		this.type = type;
+		this.hasMoved = false;
+		makeCalculator();
+	}
+
+	public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type, boolean moved)
+	{
+		color = pieceColor;
+		this.type = type;
+		this.hasMoved = moved;
 		makeCalculator();
 	}
 
@@ -51,6 +61,11 @@ public class ChessPiece
 	public PieceType getPieceType()
 	{
 		return type;
+	}
+
+	public boolean getHasMoved()
+	{
+		return this.hasMoved;
 	}
 
 	/**

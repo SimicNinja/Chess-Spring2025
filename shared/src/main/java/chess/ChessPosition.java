@@ -46,6 +46,17 @@ public class ChessPosition
 		}
 	}
 
+	/**
+	 *
+	 * @param rowOffset Integer value to add to class instance private row variable.
+	 * @param colOffset Integer value to add to class instance private column variable.
+	 * @return New ChessPosition that reflects the integer modifications to the row & column.
+	 */
+	public ChessPosition offset(int rowOffset, int colOffset)
+	{
+		return new ChessPosition(this.row + rowOffset, this.col + colOffset);
+	}
+
 	@Override
 	public boolean equals(Object o)
 	{
