@@ -34,17 +34,12 @@ public class ChessPiece
 		makeCalculator();
 	}
 
-	private void makeCalculator()
+	public ChessPiece(ChessPiece p)
 	{
-		switch(type)
-		{
-			case KING -> calculator = new KingMoveCalculator();
-			case QUEEN -> calculator = new QueenMoveCalculator();
-			case BISHOP -> calculator = new BishopMoveCalculator();
-			case KNIGHT -> calculator = new KnightMoveCalculator();
-			case ROOK -> calculator = new RookMoveCalculator();
-			case PAWN -> calculator = new PawnMoveCalculator();
-		}
+		this.color = p.getTeamColor();
+		this.type = p.getPieceType();
+		this.hasMoved = p.getHasMoved();
+		makeCalculator();
 	}
 
 	/**
@@ -153,5 +148,18 @@ public class ChessPiece
 		}
 
 		return output;
+	}
+
+	private void makeCalculator()
+	{
+		switch(type)
+		{
+			case KING -> calculator = new KingMoveCalculator();
+			case QUEEN -> calculator = new QueenMoveCalculator();
+			case BISHOP -> calculator = new BishopMoveCalculator();
+			case KNIGHT -> calculator = new KnightMoveCalculator();
+			case ROOK -> calculator = new RookMoveCalculator();
+			case PAWN -> calculator = new PawnMoveCalculator();
+		}
 	}
 }

@@ -3,14 +3,30 @@ package chess.MoveCalculators;
 import chess.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public abstract class MoveCalculator
 {
 	protected ArrayList<ChessMove> moves = new ArrayList<>();
+	protected ArrayList<ChessMove> captureMoves = new ArrayList<>();
 	private boolean captureFlag = false;
 
 	public abstract ArrayList<ChessMove> pieceMoves(ChessBoard board, ChessPosition start);
-	public abstract ArrayList<ChessMove> checkCaptures(ChessBoard board, ChessPosition start);
+
+	public Collection<ChessMove> checkCaptures(ChessBoard board, ChessPosition start)
+	{
+		pieceMoves(board, start);
+
+		for (ChessMove move : moves)
+		{
+			if (board.containsEnemy(move.getEndPosition(), board.getPiece(start)))
+			{
+				captureMoves.add(move);
+			}
+		}
+
+		return captureMoves;
+	}
 
 	protected void checkDirection(int rowOffset, int colOffset, ChessBoard board, ChessPosition start)
 	{
