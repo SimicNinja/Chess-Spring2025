@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
 
 import static java.lang.Math.abs;
@@ -41,6 +42,41 @@ public class ChessBoard
 	public ChessPiece getPiece(ChessPosition position)
 	{
 		return boardState[position.getRow() - 1][position.getColumn() - 1];
+	}
+
+	/**
+	 * Implemented to make for each loop usable in ChessGame
+	 *
+	 * @param color The color of the team you are looking for
+	 * @return An iterator used to find all the pieces on the board of a given team/color
+	 */
+	public Iterable<ChessGame.ChessPieceAndPosition> getTeamPieces(ChessGame.TeamColor color)
+	{
+		return () -> new ChessPieceIterator(color);
+	}
+
+	private class ChessPieceIterator implements Iterator<ChessGame.ChessPieceAndPosition>
+	{
+		public ChessPieceIterator(ChessGame.TeamColor color) {
+		}
+
+		@Override
+		public boolean hasNext() {
+			return false;
+		}
+
+		@Override
+		public ChessGame.ChessPieceAndPosition next() {
+			return null;
+		}
+	}
+	
+	/**
+	 * Applies ChessMove to the board. Assumes that the move is valid as logic is found in makeMove() in ChessGame.
+	 */
+	public void movePiece(ChessMove move)
+	{
+		throw new RuntimeException("Not Implemented");
 	}
 
 	/**

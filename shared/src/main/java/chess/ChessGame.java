@@ -14,6 +14,8 @@ public class ChessGame
 	private TeamColor teamToMove;
 	private final ChessBoard board;
 
+	public record ChessPieceAndPosition(ChessPiece piece, ChessPosition position) {}
+
 	public ChessGame()
 	{
 		teamToMove = TeamColor.WHITE;
@@ -80,7 +82,11 @@ public class ChessGame
 	 */
 	public boolean legalMove(ChessMove move, ChessBoard board)
 	{
-		throw new RuntimeException("Not yet implemented.");
+		ChessBoard testBoard = new ChessBoard(board);
+		ChessPiece piece = testBoard.getPiece(move.getStartPosition());
+		testBoard.movePiece(move);
+
+		return !inCheck(piece.getTeamColor(), testBoard);
 	}
 
 	/**
@@ -155,5 +161,44 @@ public class ChessGame
 	{
 		WHITE,
 		BLACK
+	}
+
+	/**
+	 * Encapsulation of isInCheck() logic so the board state can be a parameter.
+	 * @param teamColor
+	 * @param board
+	 * @return Whether the given team on the specified board is in check.
+	 */
+	private boolean inCheck(TeamColor teamColor, ChessBoard board)
+	{
+		for(ChessPieceAndPosition piece : board.getTeamPieces(otherTeam(teamColor)))
+		{
+			for(ChessMove move : piece.piece().pieceCaptures(board, piece.position))
+			{
+				if(board.getPiece(move.getEndPosition()).getPieceType() == ChessPiece.PieceType.KING)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Helper & readability function for inCheck()
+	 * @param team The current team
+	 * @return The opposite team to the given parameter.
+	 */
+	private TeamColor otherTeam(TeamColor team)
+	{
+		if (team == TeamColor.BLACK)
+		{
+			return TeamColor.WHITE;
+		}
+		else
+		{
+			return TeamColor.BLACK;
+		}
 	}
 }

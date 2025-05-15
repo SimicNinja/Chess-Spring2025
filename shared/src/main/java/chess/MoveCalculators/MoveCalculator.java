@@ -10,6 +10,7 @@ public abstract class MoveCalculator
 	private boolean captureFlag = false;
 
 	public abstract ArrayList<ChessMove> pieceMoves(ChessBoard board, ChessPosition start);
+	public abstract ArrayList<ChessMove> checkCaptures(ChessBoard board, ChessPosition start);
 
 	protected void checkDirection(int rowOffset, int colOffset, ChessBoard board, ChessPosition start)
 	{

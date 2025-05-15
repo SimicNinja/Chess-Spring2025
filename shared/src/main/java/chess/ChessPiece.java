@@ -80,6 +80,12 @@ public class ChessPiece
 		return  calculator.pieceMoves(board, myPosition);
 	}
 
+
+	public Collection<ChessMove> pieceCaptures(ChessBoard board, ChessPosition position)
+	{
+		return calculator.checkCaptures(board, position);
+	}
+
 	/**
 	 * The various different chess piece options
 	 */
