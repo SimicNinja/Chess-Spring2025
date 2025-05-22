@@ -36,7 +36,11 @@ public class UserManagement
 		String username = request.username();
 		String password = request.password();
 
-		if(users.getUser(username) == null)
+		if(username == null || password == null)
+		{
+			throw new DataAccessException("You must provide a username & password");
+		}
+		else if(users.getUser(username) == null)
 		{
 			throw new DataAccessException("User " + username + " does not exist.");
 		}
