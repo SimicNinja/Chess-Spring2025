@@ -16,14 +16,6 @@ public class DAOManagement
 	public DAOManagement()
 	{
 		//For MySQL implementation only.
-//		try
-//		{
-//			DatabaseManager.createDatabase();
-//		}
-//		catch(DataAccessException e)
-//		{
-//			throw new RuntimeException(e);
-//		}
 	}
 
 	protected UserDAO getUsers()
