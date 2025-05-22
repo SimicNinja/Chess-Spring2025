@@ -1,10 +1,16 @@
 package server;
 
 import spark.*;
+import service.*;
 
-public class Server {
+public class Server
+{
+    private final DAOManagement daoManager = new DAOManagement();
+    private final UserManagement userManager = new UserManagement(daoManager);
+    private final GameManagement gameManager = new GameManagement(daoManager);
 
-    public int run(int desiredPort) {
+    public int run(int desiredPort)
+    {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
@@ -18,7 +24,8 @@ public class Server {
         return Spark.port();
     }
 
-    public void stop() {
+    public void stop()
+    {
         Spark.stop();
         Spark.awaitStop();
     }
