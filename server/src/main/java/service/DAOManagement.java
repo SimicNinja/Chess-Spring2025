@@ -4,24 +4,26 @@ import dataaccess.DataAccessException;
 import dataaccess.interfaces.AuthDAO;
 import dataaccess.interfaces.GameDAO;
 import dataaccess.interfaces.UserDAO;
-import dataaccess.mysqldaos.*;
+import dataaccess.memorydaos.*;
+//import dataaccess.mysqldaos.*;
 
 public class DAOManagement
 {
-	private final GameDAO games = new GameDAOMySQL();
-	private final UserDAO users = new UserDAOMySQL();
-	private final AuthDAO authorizations = new AuthDAOMySQL();
+	private final GameDAO games = new GameDAOMemory();
+	private final UserDAO users = new UserDAOMemory();
+	private final AuthDAO authorizations = new AuthDAOMemory();
 
 	public DAOManagement()
 	{
-		try
-		{
-			DatabaseManager.createDatabase();
-		}
-		catch(DataAccessException e)
-		{
-			throw new RuntimeException(e);
-		}
+		//For MySQL implementation only.
+//		try
+//		{
+//			DatabaseManager.createDatabase();
+//		}
+//		catch(DataAccessException e)
+//		{
+//			throw new RuntimeException(e);
+//		}
 	}
 
 	protected UserDAO getUsers()
