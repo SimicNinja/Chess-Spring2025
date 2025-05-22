@@ -48,29 +48,31 @@ public class PawnMoveCalculator extends MoveCalculator
 					//White
 					if(color == ChessGame.TeamColor.WHITE && start.getRow() == 2)
 					{
-						makeMove(row, col, start);
+						checkPromotion(row, col, start);
 					}
 					//Black
 					else if(color == ChessGame.TeamColor.BLACK && start.getRow() == 7)
 					{
-						makeMove(row, col, start);
+						checkPromotion(row, col, start);
 					}
 				}
 				//Straight Forward
 				else if(rowOffset == 1 && colOffset == 0)
 				{
-					makeMove(row, col, start);
+					checkPromotion(row, col, start);
 				}
 			}
 			//Diagonals w/ capture
 			else if(positionContainsEnemy(row, col, board, color) && colOffset != 0)
 			{
-				makeMove(row, col, start);
+				checkPromotion(row, col, start);
 			}
+			//En Passant
+//			else if(colOffset != 0 && )
 		}
 	}
 
-	private void makeMove(int row, int col, ChessPosition start)
+	private void checkPromotion(int row, int col, ChessPosition start)
 	{
 		ChessPosition end = new ChessPosition(row, col);
 

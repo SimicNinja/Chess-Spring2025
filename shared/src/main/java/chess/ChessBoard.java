@@ -145,11 +145,6 @@ public class ChessBoard
 		return boardState[position.getRow() - 1][position.getColumn() - 1] != null;
 	}
 
-	public boolean containsAlly(ChessPosition position, ChessPiece piece)
-	{
-		return this.occupied(position) && getPiece(position).getTeamColor() == piece.getTeamColor();
-	}
-
 	/**
 	 * Checks is an enemy is located at the designate positon
 	 *
