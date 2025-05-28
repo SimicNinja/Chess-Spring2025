@@ -4,6 +4,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dataaccess.ChessPieceAdapter;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.interfaces.GameDAO;
