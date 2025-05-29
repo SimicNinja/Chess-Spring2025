@@ -32,6 +32,13 @@ public class Server
         Spark.put("/game", this::joinGame);
         Spark.get("/game", this::listGames);
 
+        Spark.exception(Exception.class, (ex, req, res) ->
+        {
+            res.status(500);
+            res.type("application/json");
+            res.body(new Gson().toJson(Map.of("message", "Internal Server Error: " + ex.getMessage())));
+        });
+
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
@@ -129,7 +136,6 @@ public class Server
         }
         catch(DataAccessException e)
         {
-
             return http400s(e, response);
         }
     }
@@ -152,6 +158,13 @@ public class Server
         {
             return http400s(e, response);
         }
+    }
+
+    private Object http200(Response response)
+    {
+        response.status(200);
+        response.type("application/json");
+        return new Gson().toJson(new JSONResponse(""));
     }
 
     private Object http400s(DataAccessException e, Response response)
@@ -177,12 +190,6 @@ public class Server
         {
             return http500(e, response);
         }
-    }
-
-    private Object http200(Response response)
-    {
-        response.status(200);
-        return new Gson().toJson(new JSONResponse(""));
     }
 
     private Object http500(DataAccessException e, Response response)
