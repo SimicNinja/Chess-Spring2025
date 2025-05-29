@@ -135,7 +135,8 @@ public class DatabaseTests
                 TestResult result = operation.get();
                 Assertions.assertEquals(500, serverFacade.getStatusCode(), "Server response code was not 500 Internal Error");
                 Assertions.assertNotNull(result.getMessage(), "Invalid Request didn't return an error message");
-                Assertions.assertTrue(result.getMessage().toLowerCase(Locale.ROOT).contains("error"), "Error message didn't contain the word \"Error\"");
+                Assertions.assertTrue(result.getMessage().toLowerCase(Locale.ROOT).contains("error"),
+                        "Error message didn't contain the word \"Error\"");
             }
         }
         finally
@@ -239,7 +240,8 @@ public class DatabaseTests
             {
             }
         }
-        throw new ClassNotFoundException("Unable to load database in order to verify persistence. " + "Are you using DatabaseManager to set your credentials? " + "Did you edit the signature of the getConnection method?");
+        throw new ClassNotFoundException("Unable to load database in order to verify persistence. " +
+                "Are you using DatabaseManager to set your credentials? " + "Did you edit the signature of the getConnection method?");
     }
 
     @FunctionalInterface
