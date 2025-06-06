@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.Records;
 import serverfacade.ResponseException;
@@ -17,6 +18,7 @@ public class Client
 	private String authToken = "";
 	private static ServerFacade facade;
 	private boolean signedIn = false;
+	private List<Records.ListedGame> games;
 
 	public Client(String serverUrl)
 	{
@@ -34,6 +36,7 @@ public class Client
             case "login" -> login(params);
 			case "create" -> createGame(params);
 			case "list" -> list(params);
+			case "join" -> joinGame(params);
             case "quit" -> "quit";
             default ->
             {
@@ -81,7 +84,7 @@ public class Client
 
 		if(params.length == 0)
 		{
-			List<Records.ListedGame> games = facade.listGames(authToken);
+			games = facade.listGames(authToken);
 
 			output.append(SET_TEXT_UNDERLINE + "Games\n" + RESET_TEXT_UNDERLINE);
 
@@ -125,6 +128,59 @@ public class Client
 			return "Successfully created game " + params[0];
 		}
 		throw new ResponseException(400, "Expected: <name>");
+	}
+
+	public String joinGame(String... params) throws ResponseException
+	{
+		assertSignedIn();
+
+		if(params.length == 2)
+		{
+			int idInput;
+			String colorInput = params[1];
+			ChessGame.TeamColor color;
+			int gameID;
+			Records.ListedGame game;
+
+			try
+			{
+				idInput = Integer.parseInt(params[0]);
+			}
+			catch(Exception e)
+			{
+				throw  new ResponseException(400, "Bad game id" + SET_TEXT_COLOR_YELLOW + "\nGame IDs can only be numbers.");
+			}
+
+			if(colorInput.equals("White") || colorInput.equals("white") || colorInput.equals("WHITE"))
+			{
+				color = ChessGame.TeamColor.WHITE;
+			}
+			else if(colorInput.equals("Black") || colorInput.equals("black") || colorInput.equals("BLACK"))
+			{
+				color = ChessGame.TeamColor.BLACK;
+			}
+			else
+			{
+				throw new ResponseException(400, "Bad team color" + SET_TEXT_COLOR_YELLOW + "\nTeam color must be white or black!");
+			}
+
+			if(idInput < 0 || idInput > games.size())
+			{
+				throw new ResponseException(400, "Bad game id" + SET_TEXT_COLOR_YELLOW + "\nPlease use the id # from the list command.");
+			}
+			else
+			{
+				game = games.get(idInput - 1);
+				gameID = game.gameID();
+			}
+
+			facade.joinGame(authToken, color, gameID);
+
+			return "You have joined game #" + idInput + " " + RESET_TEXT_COLOR + game.gameName() + SET_TEXT_COLOR_BLUE
+					+ " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE +".";
+		}
+		throw new ResponseException(400, "Expected: <ID> [White/Black]\n" + SET_TEXT_COLOR_YELLOW +
+				"Please use the id used from the list command.");
 	}
 
 	public String help()
