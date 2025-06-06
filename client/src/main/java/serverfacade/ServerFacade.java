@@ -1,3 +1,5 @@
+package serverfacade;
+
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
@@ -65,9 +67,8 @@ public class ServerFacade
 		return gameList.getGames();
 	}
 
-	private <T> T makeRequest(String method, String path, Object request,
-							  Map<String, String> headers, Class<T> responseClass)
-			throws ResponseException
+	private <T> T makeRequest(String method, String path, Object request, Map<String, String> headers,
+							  Class<T> responseClass) throws ResponseException
 	{
 		try
 		{
@@ -84,15 +85,10 @@ public class ServerFacade
 				}
 			}
 
-
 			writeBody(request, http);
 			http.connect();
 			throwIfNotSuccessful(http);
 			return readBody(http, responseClass);
-		}
-		catch(ResponseException ex)
-		{
-			throw ex;
 		}
 		catch(Exception ex)
 		{
