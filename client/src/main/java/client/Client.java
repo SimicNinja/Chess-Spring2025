@@ -2,7 +2,7 @@ package client;
 
 import chess.ChessGame;
 import model.AuthData;
-import model.Records;
+import model.Records.ListedGame;
 import serverfacade.ResponseException;
 import serverfacade.ServerFacade;
 
@@ -18,7 +18,7 @@ public class Client
 	private String authToken = "";
 	private static ServerFacade facade;
 	private boolean signedIn = false;
-	private List<Records.ListedGame> games;
+	private List<ListedGame> games;
 
 	public Client(String serverUrl)
 	{
@@ -39,6 +39,7 @@ public class Client
 			case "join" -> joinGame(params);
 			case "observe" -> observeGame(params);
             case "quit" -> "quit";
+			case "help" -> help();
             default ->
             {
                 System.out.print(SET_TEXT_COLOR_RED + "Error: Not a valid command.\n");
@@ -102,7 +103,7 @@ public class Client
 			{
 				for (int i = 0; i < games.size(); i++)
 				{
-					Records.ListedGame game = games.get(i);
+					ListedGame game = games.get(i);
 					output.append(SET_TEXT_COLOR_BLUE + (i + 1) + "-" + "Name:" + RESET_TEXT_COLOR + game.gameName());
 					output.append(SET_TEXT_COLOR_BLUE + " White:" + RESET_TEXT_COLOR + listUser(game.whiteUsername()));
 					output.append(SET_TEXT_COLOR_BLUE + " Black:" + RESET_TEXT_COLOR + listUser(game.blackUsername()) + "\n");
@@ -144,7 +145,7 @@ public class Client
 		{
 			int clientGameID = validateGameID(params[0]);
 			ChessGame.TeamColor color = validateTeamColor(params[1]);
-			Records.ListedGame game = games.get(clientGameID - 1);
+			ListedGame game = games.get(clientGameID - 1);
 
 			facade.joinGame(authToken, color, game.gameID());
 
@@ -159,7 +160,11 @@ public class Client
 	{
 		if(params.length == 2)
 		{
+			int clientGameID = validateGameID(params[0]);
+			ChessGame.TeamColor color = validateTeamColor(params[1]);
+			ListedGame game = games.get(clientGameID - 1);
 
+//			return drawBoard(game, color);
 		}
 		throw new ResponseException(400, "Expected: <ID> [White/Black]\n" + SET_TEXT_COLOR_YELLOW +
 				"Please use the id used from the list command.");

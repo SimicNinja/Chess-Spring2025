@@ -67,6 +67,4 @@ public class GameManagement
 
 		return games.listGames();
 	}
-
-
 }
