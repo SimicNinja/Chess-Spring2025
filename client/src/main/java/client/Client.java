@@ -6,6 +6,9 @@ import serverfacade.ServerFacade;
 
 import java.util.Arrays;
 
+import static ui.EscapeSequences.*;
+import static ui.EscapeSequences.SET_TEXT_COLOR_WHITE;
+
 public class Client
 {
 	private String username = null;
@@ -24,12 +27,16 @@ public class Client
 		var cmd = (tokens.length > 0) ? tokens[0] : "help";
 		var params = Arrays.copyOfRange(tokens, 1, tokens.length);
 		return switch(cmd)
-		{
-			case "register" -> register(params);
-			case "login" -> login(params);
-			case "quit" -> "quit";
-			default -> help();
-		};
+        {
+            case "register" -> register(params);
+            case "login" -> login(params);
+            case "quit" -> "quit";
+            default ->
+            {
+                System.out.print(SET_TEXT_COLOR_RED + "Error: Not a valid command.\n");
+                yield help();
+            }
+        };
 	}
 
 	public String register(String... params) throws ResponseException
@@ -50,27 +57,29 @@ public class Client
 
 	public String login(String... params) throws ResponseException
 	{
-		if(params.length >= 1)
+		if(params.length == 2)
 		{
+			username = params[0];
+			facade.login(username, params[1]);
+
 			signedIn = true;
-			username = String.join("-", params);
-			return String.format("You signed in as %s.", username);
+			return String.format("You signed in as %s.\n" + help(), username);
 		}
-		throw new ResponseException(400, "Expected: <username>");
+		throw new ResponseException(400, "Expected: <username> <password>");
 	}
 
 	public String help()
 	{
 		if(!signedIn)
 		{
-			return """
+			return SET_TEXT_COLOR_WHITE + """ 
 				- login <username> <password>
 				- register <username> <password> <email>
 				- quit
 				- help
 				""";
 		}
-		return """
+		return SET_TEXT_COLOR_WHITE + """
 			- create <name> - Creates a new game with the given name.
 			- list - Lists all games.
 			- join <ID> [White or Black] - Adds you to the specified team color and game.
@@ -87,5 +96,10 @@ public class Client
 		{
 			throw new ResponseException(400, "You must sign in");
 		}
+	}
+
+	public boolean isSignedIn()
+	{
+		return signedIn;
 	}
 }

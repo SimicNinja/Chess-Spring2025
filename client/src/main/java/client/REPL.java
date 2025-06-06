@@ -42,6 +42,14 @@ public class REPL
 
 	private void printPrompt()
 	{
-		System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
+		if(client.isSignedIn())
+		{
+			System.out.print("\n" + RESET_TEXT_COLOR + "[Logged In] ");
+		}
+		else
+		{
+			System.out.print("\n" + RESET_TEXT_COLOR + "[Logged Out] ");
+		}
+		System.out.print(">>> " + SET_TEXT_COLOR_GREEN);
 	}
 }

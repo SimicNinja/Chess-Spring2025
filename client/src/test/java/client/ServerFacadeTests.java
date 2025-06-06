@@ -13,7 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 
 
-public class ServerFacadeTests {
+public class ServerFacadeTests
+{
 
     private static Server server;
     private static ServerFacade facade;
@@ -33,19 +34,18 @@ public class ServerFacadeTests {
         newUser = new UserData("NewUser", "newUserPassword", "nu@mail.com");
     }
 
-    @BeforeEach
-    public void setup() throws ResponseException
-    {
-        facade.clear();
-        AuthData registerResult =
-                facade.register(existingUser.username(), existingUser.password(), existingUser.email());
-        existingAuth = registerResult.authToken();
-    }
-
     @AfterAll
     static void stopServer()
     {
         server.stop();
+    }
+
+    @BeforeEach
+    public void setup() throws ResponseException
+    {
+        facade.clear();
+        AuthData registerResult = facade.register(existingUser.username(), existingUser.password(), existingUser.email());
+        existingAuth = registerResult.authToken();
     }
 
     @Test
@@ -54,10 +54,8 @@ public class ServerFacadeTests {
         //submit register request
         AuthData registerResult = facade.register(newUser.username(), newUser.password(), newUser.email());
 
-        Assertions.assertEquals(newUser.username(), registerResult.username(),
-                "Response did not have the same username as was registered");
-        Assertions.assertNotNull(registerResult.authToken(),
-                "Response did not contain an authentication string");
+        Assertions.assertEquals(newUser.username(), registerResult.username(), "Response did not have the same username as was registered");
+        Assertions.assertNotNull(registerResult.authToken(), "Response did not contain an authentication string");
     }
 
     @Test
@@ -65,17 +63,14 @@ public class ServerFacadeTests {
     {
         AuthData actual = facade.register("SimicNinja", "1234", "ninja@gmail.com");
 
-        Assertions.assertEquals("SimicNinja", actual.username(),
-                "Response did not have the same username as was registered");
-        Assertions.assertNotNull(actual.authToken(),
-                "Response did not contain an authentication string");
+        Assertions.assertEquals("SimicNinja", actual.username(), "Response did not have the same username as was registered");
+        Assertions.assertNotNull(actual.authToken(), "Response did not contain an authentication string");
     }
 
     @Test
     public void failedRegister()
     {
-        ResponseException e = Assertions.assertThrows(ResponseException.class, () ->
-                facade.register(existingUser.username(), existingUser.password(), existingUser.email()));
+        ResponseException e = Assertions.assertThrows(ResponseException.class, () -> facade.register(existingUser.username(), existingUser.password(), existingUser.email()));
         Assertions.assertEquals("Error: Already Taken", e.getMessage());
     }
 
@@ -83,17 +78,14 @@ public class ServerFacadeTests {
     public void successfulLogin() throws ResponseException
     {
         AuthData loginResult = facade.login(existingUser.username(), existingUser.password());
-        Assertions.assertEquals(existingUser.username(), loginResult.username(),
-                "Response didn't match inputted username.");
-        Assertions.assertNotNull(loginResult.authToken(),
-                "Response did not contain an authentication string");
+        Assertions.assertEquals(existingUser.username(), loginResult.username(), "Response didn't match inputted username.");
+        Assertions.assertNotNull(loginResult.authToken(), "Response did not contain an authentication string");
     }
 
     @Test
     public void failedLogin()
     {
-        ResponseException e = Assertions.assertThrows(ResponseException.class, () ->
-                facade.login(existingUser.username(), "1234"));
+        ResponseException e = Assertions.assertThrows(ResponseException.class, () -> facade.login(existingUser.username(), "1234"));
         Assertions.assertEquals("Error: Unauthorized", e.getMessage());
     }
 
@@ -108,8 +100,7 @@ public class ServerFacadeTests {
     {
         facade.logout(existingAuth);
 
-        ResponseException e = Assertions.assertThrows(ResponseException.class, () ->
-                facade.logout(existingAuth));
+        ResponseException e = Assertions.assertThrows(ResponseException.class, () -> facade.logout(existingAuth));
 
         Assertions.assertEquals("Error: Unauthorized", e.getMessage());
     }
@@ -127,8 +118,7 @@ public class ServerFacadeTests {
     {
         facade.logout(existingAuth);
 
-        Assertions.assertThrows(ResponseException.class, () ->
-                facade.newGame(existingAuth, "TestGame"));
+        Assertions.assertThrows(ResponseException.class, () -> facade.newGame(existingAuth, "TestGame"));
     }
 
     @Test
@@ -156,8 +146,7 @@ public class ServerFacadeTests {
         AuthData newAuth = facade.register(newUser.username(), newUser.password(), newUser.email());
         facade.joinGame(existingAuth, ChessGame.TeamColor.BLACK, gameID);
 
-        ResponseException e = Assertions.assertThrows(ResponseException.class, () ->
-                facade.joinGame(newAuth.authToken(), ChessGame.TeamColor.BLACK, gameID));
+        ResponseException e = Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(newAuth.authToken(), ChessGame.TeamColor.BLACK, gameID));
         Assertions.assertEquals("Error: Already Taken", e.getMessage());
     }
 
