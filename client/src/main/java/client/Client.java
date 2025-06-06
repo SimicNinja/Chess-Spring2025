@@ -1,10 +1,12 @@
 package client;
 
 import model.AuthData;
+import model.Records;
 import serverfacade.ResponseException;
 import serverfacade.ServerFacade;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static ui.EscapeSequences.*;
 import static ui.EscapeSequences.SET_TEXT_COLOR_WHITE;
@@ -30,6 +32,7 @@ public class Client
         {
             case "register" -> register(params);
             case "login" -> login(params);
+			case "list" -> list();
             case "quit" -> "quit";
             default ->
             {
@@ -60,12 +63,36 @@ public class Client
 		if(params.length == 2)
 		{
 			username = params[0];
-			facade.login(username, params[1]);
+			AuthData auth = facade.login(username, params[1]);
+			authToken = auth.authToken();
 
 			signedIn = true;
 			return String.format("You signed in as %s.\n" + help(), username);
 		}
 		throw new ResponseException(400, "Expected: <username> <password>");
+	}
+
+	public String list(String... params) throws ResponseException
+	{
+		StringBuilder output = new StringBuilder();
+
+		if(params.length == 0)
+		{
+			List<Records.ListedGame> games = facade.listGames(authToken);
+
+			output.append(SET_TEXT_UNDERLINE + "Games\n" + RESET_TEXT_UNDERLINE);
+
+            for(int i = 0; i < games.size(); i++)
+            {
+                Records.ListedGame game = games.get(i);
+				output.append(SET_TEXT_COLOR_BLUE + (i + 1) + "-" + "Name:" + RESET_TEXT_COLOR + game.gameName());
+				output.append(SET_TEXT_COLOR_BLUE + " White:" + RESET_TEXT_COLOR + game.whiteUsername());
+				output.append(SET_TEXT_COLOR_BLUE + " Black:" + RESET_TEXT_COLOR + game.blackUsername() + "\n");
+            }
+
+			return String.valueOf(output);
+		}
+		throw new ResponseException(400, "List command has no additional inputs");
 	}
 
 	public String help()
