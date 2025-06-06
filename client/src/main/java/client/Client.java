@@ -32,7 +32,8 @@ public class Client
         {
             case "register" -> register(params);
             case "login" -> login(params);
-			case "list" -> list();
+			case "create" -> createGame(params);
+			case "list" -> list(params);
             case "quit" -> "quit";
             default ->
             {
@@ -74,6 +75,8 @@ public class Client
 
 	public String list(String... params) throws ResponseException
 	{
+		assertSignedIn();
+
 		StringBuilder output = new StringBuilder();
 
 		if(params.length == 0)
@@ -82,17 +85,46 @@ public class Client
 
 			output.append(SET_TEXT_UNDERLINE + "Games\n" + RESET_TEXT_UNDERLINE);
 
-            for(int i = 0; i < games.size(); i++)
-            {
-                Records.ListedGame game = games.get(i);
-				output.append(SET_TEXT_COLOR_BLUE + (i + 1) + "-" + "Name:" + RESET_TEXT_COLOR + game.gameName());
-				output.append(SET_TEXT_COLOR_BLUE + " White:" + RESET_TEXT_COLOR + game.whiteUsername());
-				output.append(SET_TEXT_COLOR_BLUE + " Black:" + RESET_TEXT_COLOR + game.blackUsername() + "\n");
-            }
+			if(games.isEmpty())
+			{
+				output.append(SET_TEXT_COLOR_YELLOW + "No games have been made. Use the create command to make one.");
+			}
+			else
+			{
+				for (int i = 0; i < games.size(); i++)
+				{
+					Records.ListedGame game = games.get(i);
+					output.append(SET_TEXT_COLOR_BLUE + (i + 1) + "-" + "Name:" + RESET_TEXT_COLOR + game.gameName());
+					output.append(SET_TEXT_COLOR_BLUE + " White:" + RESET_TEXT_COLOR + listUser(game.whiteUsername()));
+					output.append(SET_TEXT_COLOR_BLUE + " Black:" + RESET_TEXT_COLOR + listUser(game.blackUsername()) + "\n");
+				}
+			}
 
 			return String.valueOf(output);
 		}
 		throw new ResponseException(400, "List command has no additional inputs");
+	}
+
+	private String listUser(String username)
+	{
+		if(username == null)
+		{
+			return SET_TEXT_COLOR_YELLOW + "Empty use join command!";
+		}
+		return username;
+	}
+
+	public String createGame(String... params) throws ResponseException
+	{
+		assertSignedIn();
+
+		if(params.length == 1)
+		{
+			facade.newGame(authToken, params[0]);
+
+			return "Successfully created game " + params[0];
+		}
+		throw new ResponseException(400, "Expected: <name>");
 	}
 
 	public String help()
