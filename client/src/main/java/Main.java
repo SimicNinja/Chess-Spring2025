@@ -14,5 +14,6 @@ public class Main
 
         new REPL(serverURL).run();
 
+        server.stop();
     }
 }

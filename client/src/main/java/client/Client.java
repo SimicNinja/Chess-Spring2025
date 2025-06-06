@@ -53,7 +53,10 @@ public class Client
 			username = params[0];
 			AuthData auth = facade.register(username, params[1], params[2]);
 			authToken = auth.authToken();
+
 			signedIn = true;
+			games = facade.listGames(authToken);
+
 			return String.format("You have made a new account!" +
 					"\nUsername: " + username +
 					"\nPassword: " + params[1] +
@@ -71,6 +74,8 @@ public class Client
 			authToken = auth.authToken();
 
 			signedIn = true;
+			games = facade.listGames(authToken);
+
 			return String.format("You signed in as %s.\n" + help(), username);
 		}
 		throw new ResponseException(400, "Expected: <username> <password>");
