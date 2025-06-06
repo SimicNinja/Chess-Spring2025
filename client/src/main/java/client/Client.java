@@ -37,6 +37,7 @@ public class Client
 			case "create" -> createGame(params);
 			case "list" -> list(params);
 			case "join" -> joinGame(params);
+			case "observe" -> observeGame(params);
             case "quit" -> "quit";
             default ->
             {
@@ -141,51 +142,60 @@ public class Client
 
 		if(params.length == 2)
 		{
-			int idInput;
-			String colorInput = params[1];
-			ChessGame.TeamColor color;
-			int gameID;
-			Records.ListedGame game;
+			int clientGameID = validateGameID(params[0]);
+			ChessGame.TeamColor color = validateTeamColor(params[1]);
+			Records.ListedGame game = games.get(clientGameID - 1);
 
-			try
-			{
-				idInput = Integer.parseInt(params[0]);
-			}
-			catch(Exception e)
-			{
-				throw  new ResponseException(400, "Bad game id" + SET_TEXT_COLOR_YELLOW + "\nGame IDs can only be numbers.");
-			}
+			facade.joinGame(authToken, color, game.gameID());
 
-			if(colorInput.equals("White") || colorInput.equals("white") || colorInput.equals("WHITE"))
-			{
-				color = ChessGame.TeamColor.WHITE;
-			}
-			else if(colorInput.equals("Black") || colorInput.equals("black") || colorInput.equals("BLACK"))
-			{
-				color = ChessGame.TeamColor.BLACK;
-			}
-			else
-			{
-				throw new ResponseException(400, "Bad team color" + SET_TEXT_COLOR_YELLOW + "\nTeam color must be white or black!");
-			}
-
-			if(idInput < 0 || idInput > games.size())
-			{
-				throw new ResponseException(400, "Bad game id" + SET_TEXT_COLOR_YELLOW + "\nPlease use the id # from the list command.");
-			}
-			else
-			{
-				game = games.get(idInput - 1);
-				gameID = game.gameID();
-			}
-
-			facade.joinGame(authToken, color, gameID);
-
-			return "You have joined game #" + idInput + " " + RESET_TEXT_COLOR + game.gameName() + SET_TEXT_COLOR_BLUE
+			return "You have joined game #" + clientGameID + " " + RESET_TEXT_COLOR + game.gameName() + SET_TEXT_COLOR_BLUE
 					+ " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE +".";
 		}
 		throw new ResponseException(400, "Expected: <ID> [White/Black]\n" + SET_TEXT_COLOR_YELLOW +
 				"Please use the id used from the list command.");
+	}
+
+	public String observeGame(String... params) throws ResponseException
+	{
+		if(params.length == 2)
+		{
+
+		}
+		throw new ResponseException(400, "Expected: <ID> [White/Black]\n" + SET_TEXT_COLOR_YELLOW +
+				"Please use the id used from the list command.");
+	}
+
+	private ChessGame.TeamColor validateTeamColor(String input) throws ResponseException
+	{
+		if(input.equals("White") || input.equals("white") || input.equals("WHITE"))
+		{
+			return ChessGame.TeamColor.WHITE;
+		}
+		else if(input.equals("Black") || input.equals("black") || input.equals("BLACK"))
+		{
+			return ChessGame.TeamColor.BLACK;
+		}
+		throw new ResponseException(400, "Bad team color" + SET_TEXT_COLOR_YELLOW + "\nTeam color must be white or black!");
+	}
+
+	private int validateGameID(String input) throws ResponseException
+	{
+		int gameID;
+
+		try
+		{
+			gameID = Integer.parseInt(input);
+		}
+		catch(Exception e)
+		{
+			throw  new ResponseException(400, "Bad game id" + SET_TEXT_COLOR_YELLOW + "\nGame IDs can only be numbers.");
+		}
+
+		if(gameID < 0 || gameID > games.size())
+		{
+			throw new ResponseException(400, "Bad game id" + SET_TEXT_COLOR_YELLOW + "\nPlease use the id # from the list command.");
+		}
+		return gameID;
 	}
 
 	public String help()
