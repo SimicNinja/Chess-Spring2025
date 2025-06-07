@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static ui.EscapeSequences.*;
-import static ui.EscapeSequences.SET_TEXT_COLOR_WHITE;
 
 public class Client
 {
@@ -51,7 +50,7 @@ public class Client
 
 	public String register(String... params) throws ResponseException
 	{
-		assertCommandLength(3, "Expected <username> <password> <email>");
+		assertCommandLength(3, "Expected <username> <password> <email>", params);
 
 		username = params[0];
 		AuthData auth = facade.register(username, params[1], params[2]);
@@ -158,15 +157,15 @@ public class Client
 	public String observeGame(String... params) throws ResponseException
 	{
 		assertSignedIn();
-		assertCommandLength(2, "Expected: <ID> [White/Black]\n" + SET_TEXT_COLOR_YELLOW +
+		assertCommandLength(1, "Expected: <ID> \n" + SET_TEXT_COLOR_YELLOW +
 				"Please use the id used from the list command.", params);
 
 		int clientGameID = validateGameID(params[0]);
-		ChessGame.TeamColor color = validateTeamColor(params[1]);
 		GameData game = games.get(clientGameID - 1);
 
-		return "";
-//		return drawBoard(game, color);
+		GameClient gameClient = new  GameClient(game);
+
+		return gameClient.printBoard();
 	}
 
 	private ChessGame.TeamColor validateTeamColor(String input) throws ResponseException
