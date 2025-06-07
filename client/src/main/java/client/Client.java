@@ -68,7 +68,7 @@ public class Client
 
 	public String login(String... params) throws ResponseException
 	{
-		assertCommandLength(2, "Expected: <username> <password>");
+		assertCommandLength(2, "Expected: <username> <password>", params);
 
 		username = params[0];
 		AuthData auth = facade.login(username, params[1]);
@@ -82,7 +82,13 @@ public class Client
 
 	public String logout(String... params) throws ResponseException
 	{
-		return "";
+		assertSignedIn();
+		assertCommandLength(0, "Logout command has no additional inputs", params);
+
+		signedIn = false;
+		facade.logout(authToken);
+
+		return "You have successfully logged out!";
 	}
 
 	public String list(String... params) throws ResponseException
