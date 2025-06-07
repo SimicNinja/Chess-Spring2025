@@ -34,6 +34,7 @@ public class Client
         {
             case "register" -> register(params);
             case "login" -> login(params);
+			case "logout" -> logout(params);
 			case "create" -> createGame(params);
 			case "list" -> list(params);
 			case "join" -> joinGame(params);
@@ -50,69 +51,67 @@ public class Client
 
 	public String register(String... params) throws ResponseException
 	{
-		if(params.length == 3)
-		{
-			username = params[0];
-			AuthData auth = facade.register(username, params[1], params[2]);
-			authToken = auth.authToken();
+		assertCommandLength(3, "Expected <username> <password> <email>");
 
-			signedIn = true;
-			games = facade.listGames(authToken);
+		username = params[0];
+		AuthData auth = facade.register(username, params[1], params[2]);
+		authToken = auth.authToken();
 
-			return String.format("You have made a new account!" +
-					"\nUsername: " + username +
-					"\nPassword: " + params[1] +
-					"\nEmail: " + params[2]);
-		}
-		throw new ResponseException(400, "Expected: <username> <password> <email>");
+		signedIn = true;
+		games = facade.listGames(authToken);
+
+		return String.format("You have made a new account!" +
+				"\nUsername: " + username +
+				"\nPassword: " + params[1] +
+				"\nEmail: " + params[2]);
 	}
 
 	public String login(String... params) throws ResponseException
 	{
-		if(params.length == 2)
-		{
-			username = params[0];
-			AuthData auth = facade.login(username, params[1]);
-			authToken = auth.authToken();
+		assertCommandLength(2, "Expected: <username> <password>");
 
-			signedIn = true;
-			games = facade.listGames(authToken);
+		username = params[0];
+		AuthData auth = facade.login(username, params[1]);
+		authToken = auth.authToken();
 
-			return String.format("You signed in as %s.\n" + help(), username);
-		}
-		throw new ResponseException(400, "Expected: <username> <password>");
+		signedIn = true;
+		games = facade.listGames(authToken);
+
+		return String.format("You signed in as %s.\n" + help(), username);
+	}
+
+	public String logout(String... params) throws ResponseException
+	{
+		return "";
 	}
 
 	public String list(String... params) throws ResponseException
 	{
 		assertSignedIn();
+		assertCommandLength(0, "List command has no additional inputs", params);
 
 		StringBuilder output = new StringBuilder();
 
-		if(params.length == 0)
+		games = facade.listGames(authToken);
+
+		output.append(SET_TEXT_UNDERLINE + "Games\n" + RESET_TEXT_UNDERLINE);
+
+		if(games.isEmpty())
 		{
-			games = facade.listGames(authToken);
-
-			output.append(SET_TEXT_UNDERLINE + "Games\n" + RESET_TEXT_UNDERLINE);
-
-			if(games.isEmpty())
-			{
-				output.append(SET_TEXT_COLOR_YELLOW + "No games have been made. Use the create command to make one.");
-			}
-			else
-			{
-				for (int i = 0; i < games.size(); i++)
-				{
-					ListedGame game = games.get(i);
-					output.append(SET_TEXT_COLOR_BLUE + (i + 1) + "-" + "Name:" + RESET_TEXT_COLOR + game.gameName());
-					output.append(SET_TEXT_COLOR_BLUE + " White:" + RESET_TEXT_COLOR + listUser(game.whiteUsername()));
-					output.append(SET_TEXT_COLOR_BLUE + " Black:" + RESET_TEXT_COLOR + listUser(game.blackUsername()) + "\n");
-				}
-			}
-
-			return String.valueOf(output);
+			output.append(SET_TEXT_COLOR_YELLOW + "No games have been made. Use the create command to make one.");
 		}
-		throw new ResponseException(400, "List command has no additional inputs");
+		else
+		{
+			for (int i = 0; i < games.size(); i++)
+			{
+				ListedGame game = games.get(i);
+				output.append(SET_TEXT_COLOR_BLUE + (i + 1) + "-" + "Name:" + RESET_TEXT_COLOR + game.gameName());
+				output.append(SET_TEXT_COLOR_BLUE + " White:" + RESET_TEXT_COLOR + listUser(game.whiteUsername()));
+				output.append(SET_TEXT_COLOR_BLUE + " Black:" + RESET_TEXT_COLOR + listUser(game.blackUsername()) + "\n");
+			}
+		}
+
+		return String.valueOf(output);
 	}
 
 	private String listUser(String username)
@@ -127,47 +126,41 @@ public class Client
 	public String createGame(String... params) throws ResponseException
 	{
 		assertSignedIn();
+		assertCommandLength(1, "Expected: <name>", params);
 
-		if(params.length == 1)
-		{
-			facade.newGame(authToken, params[0]);
+		facade.newGame(authToken, params[0]);
 
-			return "Successfully created game " + params[0];
-		}
-		throw new ResponseException(400, "Expected: <name>");
+		return "Successfully created game " + params[0];
 	}
 
 	public String joinGame(String... params) throws ResponseException
 	{
 		assertSignedIn();
+		assertCommandLength(2, "Expected: <ID> [White/Black]\n" + SET_TEXT_COLOR_YELLOW +
+				"Please use the id used from the list command.", params);
 
-		if(params.length == 2)
-		{
-			int clientGameID = validateGameID(params[0]);
-			ChessGame.TeamColor color = validateTeamColor(params[1]);
-			ListedGame game = games.get(clientGameID - 1);
+		int clientGameID = validateGameID(params[0]);
+		ChessGame.TeamColor color = validateTeamColor(params[1]);
+		ListedGame game = games.get(clientGameID - 1);
 
-			facade.joinGame(authToken, color, game.gameID());
+		facade.joinGame(authToken, color, game.gameID());
 
-			return "You have joined game #" + clientGameID + " " + RESET_TEXT_COLOR + game.gameName() + SET_TEXT_COLOR_BLUE
-					+ " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE +".";
-		}
-		throw new ResponseException(400, "Expected: <ID> [White/Black]\n" + SET_TEXT_COLOR_YELLOW +
-				"Please use the id used from the list command.");
+		return "You have joined game #" + clientGameID + " " + RESET_TEXT_COLOR + game.gameName() + SET_TEXT_COLOR_BLUE
+				+ " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE +".";
 	}
 
 	public String observeGame(String... params) throws ResponseException
 	{
-		if(params.length == 2)
-		{
-			int clientGameID = validateGameID(params[0]);
-			ChessGame.TeamColor color = validateTeamColor(params[1]);
-			ListedGame game = games.get(clientGameID - 1);
+		assertSignedIn();
+		assertCommandLength(2, "Expected: <ID> [White/Black]\n" + SET_TEXT_COLOR_YELLOW +
+				"Please use the id used from the list command.", params);
 
-//			return drawBoard(game, color);
-		}
-		throw new ResponseException(400, "Expected: <ID> [White/Black]\n" + SET_TEXT_COLOR_YELLOW +
-				"Please use the id used from the list command.");
+		int clientGameID = validateGameID(params[0]);
+		ChessGame.TeamColor color = validateTeamColor(params[1]);
+		ListedGame game = games.get(clientGameID - 1);
+
+		return "";
+//		return drawBoard(game, color);
 	}
 
 	private ChessGame.TeamColor validateTeamColor(String input) throws ResponseException
@@ -225,6 +218,11 @@ public class Client
 			""";
 	}
 
+	public boolean isSignedIn()
+	{
+		return signedIn;
+	}
+
 	private void assertSignedIn() throws ResponseException
 	{
 		if(!signedIn)
@@ -233,8 +231,11 @@ public class Client
 		}
 	}
 
-	public boolean isSignedIn()
+	private void assertCommandLength(int length, String message, String... params) throws ResponseException
 	{
-		return signedIn;
+		if(params.length != length)
+		{
+			throw new ResponseException(400, message);
+		}
 	}
 }
