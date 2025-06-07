@@ -16,7 +16,7 @@ public class ChessPiece
 	private final ChessGame.TeamColor color;
 	private final ChessPiece.PieceType type;
 	private final boolean hasMoved;
-	private MoveCalculator calculator;
+	private transient MoveCalculator calculator;
 
 	public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type)
 	{
