@@ -3,6 +3,7 @@ package serverfacade;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
 import model.Records.*;
 import model.UserData;
 
@@ -61,7 +62,7 @@ public class ServerFacade
 		this.makeRequest("PUT", "/game", req, makeAuth(authToken), null);
 	}
 
-	public List<ListedGame> listGames(String authToken) throws ResponseException
+	public List<GameData> listGames(String authToken) throws ResponseException
 	{
 		GamesList gameList = this.makeRequest("GET", "/game", null, makeAuth(authToken), GamesList.class);
 		return gameList.getGames();
@@ -158,11 +159,11 @@ public class ServerFacade
 
 	public static class GamesList
 	{
-		private List<ListedGame> games;
+		private List<GameData> games;
 
 		public GamesList() {}
 
-		public List<ListedGame> getGames()
+		public List<GameData> getGames()
 		{
 			return games;
 		}

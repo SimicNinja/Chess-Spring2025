@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import dataaccess.interfaces.GameDAO;
 import dataaccess.mysqldaos.GameDAOMySQL;
 import model.GameData;
-import model.Records.ListedGame;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -120,13 +119,10 @@ public class GameDAOTests
 	@Test
 	public void testListGames()
 	{
-		List<ListedGame> expected = new ArrayList<>();
-		expected.add(new ListedGame(
-		1, "LickyFrog", "SimicNinja", "Frog's first game"));
-		expected.add(new ListedGame(
-		2, "SimicNinja", "JOA", "Water fight"));
-		expected.add(new ListedGame(
-		3, "JOA", "LickyFrog", "Chest"));
+		List<GameData> expected = new ArrayList<>();
+		expected.add(new GameData(1, "LickyFrog", "SimicNinja", "Frog's first game", new ChessGame()));
+		expected.add(new GameData(2, "SimicNinja", "JOA", "Water fight", new ChessGame()));
+		expected.add(new GameData(3, "JOA", "LickyFrog", "Chest", new ChessGame()));
 
 		Assertions.assertEquals(expected, dao.listGames());
 

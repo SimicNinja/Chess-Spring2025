@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;
+import model.GameData;
 import model.Records.*;
 import model.UserData;
 import org.junit.jupiter.api.BeforeAll;
@@ -187,11 +188,11 @@ public class GameManagementTests
 			int gameID2 = result2.gameID();
 
 			//Setup Expected
-			ListedGame game1 = new ListedGame(gameID, null, null, "TestGame");
-			ListedGame game2 = new ListedGame(gameID2, null, null, "TestGame2");
+			GameData game1 = new GameData(gameID, null, null, "TestGame", new ChessGame());
+			GameData game2 = new GameData(gameID2, null, null, "TestGame2", new ChessGame());
 
 			//Calculate Actual
-			List<ListedGame> gameList = gameManager.listGames(authToken);
+			List<GameData> gameList = gameManager.listGames(authToken);
 
 			assertEquals(new HashSet<>(List.of(game1, game2)), new HashSet<>(gameList));
 		}

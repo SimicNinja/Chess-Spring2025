@@ -61,7 +61,7 @@ public class GameManagement
 		throw new DataAccessException("Another user has already claimed the " + color + " team in this game.");
 	}
 
-	public List<Records.ListedGame> listGames(String authToken) throws DataAccessException
+	public List<GameData> listGames(String authToken) throws DataAccessException
 	{
 		authDAO.authorizeToken(authToken);
 

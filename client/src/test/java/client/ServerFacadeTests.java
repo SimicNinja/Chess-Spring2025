@@ -2,6 +2,7 @@ package client;
 
 import chess.ChessGame;
 import model.AuthData;
+import model.GameData;
 import model.Records;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -130,8 +131,8 @@ public class ServerFacadeTests
 
         facade.joinGame(existingAuth, ChessGame.TeamColor.BLACK, gameID);
 
-        List<Records.ListedGame> expectedList = new ArrayList<>();
-        expectedList.add(new Records.ListedGame(gameID, null, existingUser.username(), gameName));
+        List<GameData> expectedList = new ArrayList<>();
+        expectedList.add(new GameData(gameID, null, existingUser.username(), gameName, new ChessGame()));
 
         Assertions.assertEquals(expectedList, facade.listGames(existingAuth));
     }
@@ -163,20 +164,20 @@ public class ServerFacadeTests
         AuthData authC = facade.register(userC.username(), userC.password(), userC.email());
 
         //create games
-        List<Records.ListedGame> expectedList = new ArrayList<>();
+        List<GameData> expectedList = new ArrayList<>();
 
         //1 as black from A
         String game1Name = "I'm numbah one!";
         Records.NewGameResult game1 = facade.newGame(authA.authToken(), game1Name);
         facade.joinGame(authA.authToken(), ChessGame.TeamColor.BLACK, game1.gameID());
-        expectedList.add(new Records.ListedGame(game1.gameID(), null, authA.username(), game1Name));
+        expectedList.add(new GameData(game1.gameID(), null, authA.username(), game1Name, new ChessGame()));
 
 
         //1 as white from B
         String game2Name = "Lonely";
         Records.NewGameResult game2 = facade.newGame(authB.authToken(), game2Name);
         facade.joinGame(authB.authToken(), ChessGame.TeamColor.WHITE, game2.gameID());
-        expectedList.add(new Records.ListedGame(game2.gameID(), authB.username(), null, game2Name));
+        expectedList.add(new GameData(game2.gameID(), authB.username(), null, game2Name, new ChessGame()));
 
 
         //1 of each from C
@@ -184,7 +185,7 @@ public class ServerFacadeTests
         Records.NewGameResult game3 = facade.newGame(authC.authToken(), game3Name);
         facade.joinGame(authC.authToken(), ChessGame.TeamColor.WHITE, game3.gameID());
         facade.joinGame(authA.authToken(), ChessGame.TeamColor.BLACK, game3.gameID());
-        expectedList.add(new Records.ListedGame(game3.gameID(), authC.username(), authA.username(), game3Name));
+        expectedList.add(new GameData(game3.gameID(), authC.username(), authA.username(), game3Name, new ChessGame()));
 
 
         //C play self
@@ -192,13 +193,13 @@ public class ServerFacadeTests
         Records.NewGameResult game4 = facade.newGame(authC.authToken(), game4Name);
         facade.joinGame(authC.authToken(), ChessGame.TeamColor.WHITE, game4.gameID());
         facade.joinGame(authC.authToken(), ChessGame.TeamColor.BLACK, game4.gameID());
-        expectedList.add(new Records.ListedGame(game4.gameID(), authC.username(), authC.username(), game4Name));
+        expectedList.add(new GameData(game4.gameID(), authC.username(), authC.username(), game4Name, new ChessGame()));
 
 
         //list games
-        List<Records.ListedGame> actualList = facade.listGames(existingAuth);
+        List<GameData> actualList = facade.listGames(existingAuth);
         Assertions.assertNotNull(actualList, "List result did not contain a list of games");
-        Comparator<Records.ListedGame> gameIdComparator = Comparator.comparingInt(Records.ListedGame::gameID);
+        Comparator<GameData> gameIdComparator = Comparator.comparingInt(GameData::gameID);
         expectedList.sort(gameIdComparator);
         actualList.sort(gameIdComparator);
 

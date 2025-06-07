@@ -2,7 +2,7 @@ package client;
 
 import chess.ChessGame;
 import model.AuthData;
-import model.Records.ListedGame;
+import model.GameData;
 import serverfacade.ResponseException;
 import serverfacade.ServerFacade;
 
@@ -18,7 +18,7 @@ public class Client
 	private String authToken = "";
 	private static ServerFacade facade;
 	private boolean signedIn = false;
-	private List<ListedGame> games;
+	private List<GameData> games;
 
 	public Client(String serverUrl)
 	{
@@ -110,7 +110,7 @@ public class Client
 		{
 			for (int i = 0; i < games.size(); i++)
 			{
-				ListedGame game = games.get(i);
+				GameData game = games.get(i);
 				output.append(SET_TEXT_COLOR_BLUE + (i + 1) + "-" + "Name:" + RESET_TEXT_COLOR + game.gameName());
 				output.append(SET_TEXT_COLOR_BLUE + " White:" + RESET_TEXT_COLOR + listUser(game.whiteUsername()));
 				output.append(SET_TEXT_COLOR_BLUE + " Black:" + RESET_TEXT_COLOR + listUser(game.blackUsername()) + "\n");
@@ -147,7 +147,7 @@ public class Client
 
 		int clientGameID = validateGameID(params[0]);
 		ChessGame.TeamColor color = validateTeamColor(params[1]);
-		ListedGame game = games.get(clientGameID - 1);
+		GameData game = games.get(clientGameID - 1);
 
 		facade.joinGame(authToken, color, game.gameID());
 
@@ -163,7 +163,7 @@ public class Client
 
 		int clientGameID = validateGameID(params[0]);
 		ChessGame.TeamColor color = validateTeamColor(params[1]);
-		ListedGame game = games.get(clientGameID - 1);
+		GameData game = games.get(clientGameID - 1);
 
 		return "";
 //		return drawBoard(game, color);

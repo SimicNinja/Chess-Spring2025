@@ -147,7 +147,7 @@ public class Server
 
         try
         {
-            List<Records.ListedGame> result = gameManager.listGames(authToken);
+            List<GameData> result = gameManager.listGames(authToken);
             response.status(200);
 
             Map<String, Object> jsonWrapper = new HashMap<>();

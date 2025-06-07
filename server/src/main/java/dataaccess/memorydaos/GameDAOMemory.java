@@ -4,7 +4,6 @@ import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.interfaces.GameDAO;
 import model.GameData;
-import model.Records.ListedGame;
 
 import java.util.*;
 
@@ -23,17 +22,9 @@ public class GameDAOMemory implements GameDAO
 		return idMap.get(gameID);
 	}
 
-	public List<ListedGame> listGames()
+	public List<GameData> listGames()
 	{
-		ArrayList<GameData> games = new ArrayList<>(idMap.values());
-		ArrayList<ListedGame> listedGames = new ArrayList<>();
-
-		for(GameData game : games)
-		{
-			listedGames.add(new ListedGame(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
-		}
-
-		return listedGames;
+        return new ArrayList<>(idMap.values());
 	}
 
 	public boolean duplicateGame(String gameName)
