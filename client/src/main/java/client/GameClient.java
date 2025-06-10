@@ -11,7 +11,7 @@ public class GameClient
 {
     private GameData gameData;
     private String whitePlayer;
-    private String blackPlayer;
+    private final String blackPlayer;
     private ChessGame game;
 
     public GameClient(GameData data)
@@ -22,7 +22,19 @@ public class GameClient
         this.game = gameData.game();
     }
 
-    public String printBoard()
+    public String printBoard(String username)
+    {
+        if(username.equals(blackPlayer))
+        {
+            return printBoardBlack();
+        }
+        else
+        {
+            return printBoardWhite();
+        }
+    }
+
+    private String printBoardWhite()
     {
         StringBuilder output = new StringBuilder();
         ChessBoard board = game.getBoard();
@@ -33,7 +45,7 @@ public class GameClient
         for(int row = 8; row > 0; row--)
         {
             output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " " + Integer.toString(row) + " ");
-            for(int col = 8; col > 0; col--)
+            for(int col = 1; col <= 8; col++)
             {
                 output.append(printSquare(isWhite));
                 isWhite = !isWhite;
@@ -45,6 +57,33 @@ public class GameClient
         }
 
         output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY + " a  b  c  d  e  f  g  h " + EMPTY + RESET_BG_COLOR + "\n");
+
+        return output.toString();
+    }
+
+    private String printBoardBlack()
+    {
+        StringBuilder output = new StringBuilder();
+        ChessBoard board = game.getBoard();
+        boolean isWhite = true;
+
+        output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY + " h  g  f  e  d  c  b  a " + EMPTY + RESET_BG_COLOR + "\n");
+
+        for(int row = 1; row < 9; row++)
+        {
+            output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " " + Integer.toString(row) + " ");
+            for(int col = 1; col <= 8; col++)
+            {
+                output.append(printSquare(isWhite));
+                isWhite = !isWhite;
+                output.append(printPiece(board.getPiece(new ChessPosition(row, col))));
+            }
+            isWhite = !isWhite;
+            output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " " + Integer.toString(row) + " ");
+            output.append(RESET_BG_COLOR + "\n" + SET_BG_COLOR_DARK_GREY);
+        }
+
+        output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY + " h  g  f  e  d  c  b  a " + EMPTY + RESET_BG_COLOR + "\n");
 
         return output.toString();
     }
