@@ -28,11 +28,11 @@ public class GameClient
         ChessBoard board = game.getBoard();
         boolean isWhite = true;
 
-        output.append(EMPTY + SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " \u2005a\u2005 "+ SET_BG_COLOR_DARK_GREY +" \u2006b\u2006  \u2006c\u2006  \u2006d" + EMPTY + RESET_BG_COLOR + "\n");
+        output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY + " a  b  c  d  e  f  g  h " + EMPTY + RESET_BG_COLOR + "\n");
 
         for(int row = 8; row > 0; row--)
         {
-            output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " \u2009" + Integer.toString(row) + "\u2009 ");
+            output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " " + Integer.toString(row) + " ");
             for(int col = 8; col > 0; col--)
             {
                 output.append(printSquare(isWhite));
@@ -44,7 +44,7 @@ public class GameClient
             output.append(RESET_BG_COLOR + "\n" + SET_BG_COLOR_DARK_GREY);
         }
 
-        output.append(RESET_BG_COLOR);
+        output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY + " a  b  c  d  e  f  g  h " + EMPTY + RESET_BG_COLOR + "\n");
 
         return output.toString();
     }
