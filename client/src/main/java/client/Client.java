@@ -61,7 +61,6 @@ public class Client
 
 		return String.format("You have made a new account!" +
 				"\nUsername: " + username +
-				"\nPassword: " + params[1] +
 				"\nEmail: " + params[2]);
 	}
 
@@ -149,6 +148,10 @@ public class Client
 		GameData game = games.get(clientGameID - 1);
 
 		facade.joinGame(authToken, color, game.gameID());
+
+		//Update private class members from server
+		games = facade.listGames(authToken);
+		game = games.get(clientGameID - 1);
 
 		GameClient gameClient = new GameClient(game);
 
