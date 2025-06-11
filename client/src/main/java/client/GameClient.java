@@ -5,14 +5,15 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.GameData;
+
 import static ui.EscapeSequences.*;
 
 public class GameClient
 {
-    private GameData gameData;
-    private String whitePlayer;
     private final String blackPlayer;
-    private ChessGame game;
+    private final GameData gameData;
+    private final String whitePlayer;
+    private final ChessGame game;
 
     public GameClient(GameData data)
     {
@@ -26,64 +27,60 @@ public class GameClient
     {
         if(username.equals(blackPlayer))
         {
-            return printBoardBlack();
+            return printBoard(false);
         }
         else
         {
-            return printBoardWhite();
+            return printBoard(true);
         }
     }
 
-    private String printBoardWhite()
+    private String printBoard(boolean whitePerspective)
     {
         StringBuilder output = new StringBuilder();
         ChessBoard board = game.getBoard();
         boolean isWhite = true;
 
-        output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY + " a  b  c  d  e  f  g  h " + EMPTY + RESET_BG_COLOR + "\n");
+        // Set up column labels
+        String[] cols = whitePerspective
+                ? new String[]{"a", "b", "c", "d", "e", "f", "g", "h"}
+                : new String[]{"h", "g", "f", "e", "d", "c", "b", "a"};
 
-        for(int row = 8; row > 0; row--)
+        // Print top labels
+        output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY);
+        for(String col : cols)
         {
-            output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " " + Integer.toString(row) + " ");
-            for(int col = 1; col <= 8; col++)
+            output.append(" " + col + " ");
+        }
+        output.append(EMPTY + RESET_BG_COLOR + "\n");
+
+        // Row iteration direction
+        int rowStart = whitePerspective ? 8 : 1;
+        int rowEnd = whitePerspective ? 0 : 9;
+        int rowStep = whitePerspective ? -1 : 1;
+
+        for(int row = rowStart; row != rowEnd; row += rowStep)
+        {
+            output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " " + row + " ");
+            for(int i = 0; i < 8; i++)
             {
+                int col = whitePerspective ? i + 1 : 8 - i;
                 output.append(printSquare(isWhite));
                 isWhite = !isWhite;
                 output.append(printPiece(board.getPiece(new ChessPosition(row, col))));
             }
             isWhite = !isWhite;
-            output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " " + Integer.toString(row) + " ");
+            output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " " + row + " ");
             output.append(RESET_BG_COLOR + "\n" + SET_BG_COLOR_DARK_GREY);
         }
 
-        output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY + " a  b  c  d  e  f  g  h " + EMPTY + RESET_BG_COLOR + "\n");
-
-        return output.toString();
-    }
-
-    private String printBoardBlack()
-    {
-        StringBuilder output = new StringBuilder();
-        ChessBoard board = game.getBoard();
-        boolean isWhite = true;
-
-        output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY + " h  g  f  e  d  c  b  a " + EMPTY + RESET_BG_COLOR + "\n");
-
-        for(int row = 1; row < 9; row++)
+        // Print bottom labels
+        output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY);
+        for(String col : cols)
         {
-            output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " " + Integer.toString(row) + " ");
-            for(int col = 1; col <= 8; col++)
-            {
-                output.append(printSquare(isWhite));
-                isWhite = !isWhite;
-                output.append(printPiece(board.getPiece(new ChessPosition(row, col))));
-            }
-            isWhite = !isWhite;
-            output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + " " + Integer.toString(row) + " ");
-            output.append(RESET_BG_COLOR + "\n" + SET_BG_COLOR_DARK_GREY);
+            output.append(" " + col + " ");
         }
-
-        output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY + " h  g  f  e  d  c  b  a " + EMPTY + RESET_BG_COLOR + "\n");
+        output.append(EMPTY + RESET_BG_COLOR + "\n");
 
         return output.toString();
     }
@@ -124,9 +121,9 @@ public class GameClient
             case QUEEN -> output.append(BLACK_QUEEN);
             case BISHOP -> output.append(BLACK_BISHOP);
             case KNIGHT -> output.append(BLACK_KNIGHT);
-            case ROOK ->  output.append(BLACK_ROOK);
+            case ROOK -> output.append(BLACK_ROOK);
             case PAWN -> output.append(BLACK_PAWN);
-        };
+        }
 
         return output.toString();
     }

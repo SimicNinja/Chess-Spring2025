@@ -71,7 +71,8 @@ public class ServerFacadeTests
     @Test
     public void failedRegister()
     {
-        ResponseException e = Assertions.assertThrows(ResponseException.class, () -> facade.register(existingUser.username(), existingUser.password(), existingUser.email()));
+        ResponseException e = Assertions.assertThrows(ResponseException.class,
+                () -> facade.register(existingUser.username(), existingUser.password(), existingUser.email()));
         Assertions.assertEquals("Error: Already Taken", e.getMessage());
     }
 
@@ -147,7 +148,8 @@ public class ServerFacadeTests
         AuthData newAuth = facade.register(newUser.username(), newUser.password(), newUser.email());
         facade.joinGame(existingAuth, ChessGame.TeamColor.BLACK, gameID);
 
-        ResponseException e = Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(newAuth.authToken(), ChessGame.TeamColor.BLACK, gameID));
+        ResponseException e = Assertions.assertThrows(ResponseException.class,
+                () -> facade.joinGame(newAuth.authToken(), ChessGame.TeamColor.BLACK, gameID));
         Assertions.assertEquals("Error: Already Taken", e.getMessage());
     }
 

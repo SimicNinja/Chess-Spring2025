@@ -118,7 +118,12 @@ public class DatabaseTests
         Object obj = databaseManagerClass.getDeclaredConstructor().newInstance();
         loadPropertiesMethod.invoke(obj, fakeDbProperties);
 
-        List<Supplier<TestResult>> operations = List.of(() -> serverFacade.clear(), () -> serverFacade.register(TEST_USER), () -> serverFacade.login(TEST_USER), () -> serverFacade.logout(UUID.randomUUID().toString()), () -> serverFacade.createGame(new TestCreateRequest("inaccessible"), UUID.randomUUID().toString()), () -> serverFacade.listGames(UUID.randomUUID().toString()), () -> serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, 1), UUID.randomUUID().toString()));
+        List<Supplier<TestResult>> operations = List.of(() -> serverFacade.clear(),
+                () -> serverFacade.register(TEST_USER), () -> serverFacade.login(TEST_USER),
+                () -> serverFacade.logout(UUID.randomUUID().toString()),
+                () -> serverFacade.createGame(new TestCreateRequest("inaccessible"), UUID.randomUUID().toString()),
+                () -> serverFacade.listGames(UUID.randomUUID().toString()),
+                () -> serverFacade.joinPlayer(new TestJoinRequest(ChessGame.TeamColor.WHITE, 1), UUID.randomUUID().toString()));
 
         try
         {
@@ -127,7 +132,8 @@ public class DatabaseTests
                 TestResult result = operation.get();
                 Assertions.assertEquals(500, serverFacade.getStatusCode(), "Server response code was not 500 Internal Error");
                 Assertions.assertNotNull(result.getMessage(), "Invalid Request didn't return an error message");
-                Assertions.assertTrue(result.getMessage().toLowerCase(Locale.ROOT).contains("error"), "Error message didn't contain the word \"Error\"");
+                Assertions.assertTrue(result.getMessage().toLowerCase(Locale.ROOT).contains("error"),
+                        "Error message didn't contain the word \"Error\"");
             }
         }
         finally
@@ -231,7 +237,9 @@ public class DatabaseTests
             {
             }
         }
-        throw new ClassNotFoundException("Unable to load database in order to verify persistence. " + "Are you using DatabaseManager to set your credentials? " + "Did you edit the signature of the getConnection method?");
+        throw new ClassNotFoundException("Unable to load database in order to verify persistence. "
+                + "Are you using DatabaseManager to set your credentials? "
+                + "Did you edit the signature of the getConnection method?");
     }
 
     @FunctionalInterface
