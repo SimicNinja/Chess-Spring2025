@@ -155,9 +155,11 @@ public class Client
 
 		GameClient gameClient = new GameClient(game);
 
+		boolean white = color == ChessGame.TeamColor.WHITE;
+
 		return "You have joined game #" + clientGameID + " " + RESET_TEXT_COLOR + game.gameName() + SET_TEXT_COLOR_BLUE
 				+ " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE + ".\n"
-				+ gameClient.printBoard(username);
+				+ gameClient.printBoard(white);
 	}
 
 	public String observeGame(String... params) throws ResponseException
@@ -171,7 +173,7 @@ public class Client
 
 		GameClient gameClient = new GameClient(game);
 
-		return gameClient.printBoard(username);
+		return gameClient.printBoard(true);
 	}
 
 	private ChessGame.TeamColor validateTeamColor(String input) throws ResponseException

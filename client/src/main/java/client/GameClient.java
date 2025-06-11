@@ -23,19 +23,7 @@ public class GameClient
         this.game = gameData.game();
     }
 
-    public String printBoard(String username)
-    {
-        if(username.equals(blackPlayer))
-        {
-            return printBoard(false);
-        }
-        else
-        {
-            return printBoard(true);
-        }
-    }
-
-    private String printBoard(boolean whitePerspective)
+    public String printBoard(boolean whitePerspective)
     {
         StringBuilder output = new StringBuilder();
         ChessBoard board = game.getBoard();
