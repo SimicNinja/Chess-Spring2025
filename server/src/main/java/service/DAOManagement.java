@@ -26,17 +26,17 @@ public class DAOManagement
 		}
 	}
 
-	protected UserDAO getUsers()
+	public UserDAO getUsers()
 	{
 		return users;
 	}
 
-	protected AuthDAO getAuthorizations()
+	public AuthDAO getAuthorizations()
 	{
 		return authorizations;
 	}
 
-	protected GameDAO getGames()
+	public GameDAO getGames()
 	{
 		return games;
 	}

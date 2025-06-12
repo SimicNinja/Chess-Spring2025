@@ -1,10 +1,12 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import service.DAOManagement;
 import websocket.commands.*;
 import websocket.messages.Error;
 import websocket.messages.LoadGame;
@@ -19,6 +21,12 @@ public class WebsocketHandler
 {
 
     private final ConnectionManager connections = new ConnectionManager();
+    private final DAOManagement daoManager;
+
+    public WebsocketHandler(DAOManagement daoManager)
+    {
+        this.daoManager = daoManager;
+    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException
@@ -31,7 +39,7 @@ public class WebsocketHandler
 
             switch(command.getCommandType())
             {
-                case CONNECT -> connect(session, username, (Connect) command);
+                case CONNECT -> connect(session, username, command);
                 case MAKE_MOVE -> makeMove(session, username, (MakeMove) command);
                 case LEAVE -> leaveGame(session, username, command);
                 case RESIGN -> resign(session, username, command);
@@ -47,12 +55,13 @@ public class WebsocketHandler
         }
     }
 
-    private String getUsername(String authToken) throws UnauthorizedException
+    private String getUsername(String authToken) throws UnauthorizedException, DataAccessException
     {
-        return "";
+        return daoManager.getAuthorizations().authorizeToken(authToken);
     }
 
-    private void connect(Session session, String username, Connect command) throws IOException
+    private void connect(Session session, String username, UserGameCommand command)
+            throws IOException, DataAccessException
     {
         connections.add(username, session);
 
@@ -60,8 +69,10 @@ public class WebsocketHandler
         Notification notification = new Notification(NOTIFICATION, msg);
         connections.broadcast(username, notification);
 
-        LoadGame load = new LoadGame(LOAD_GAME, command.getGame());
+        int gameID = command.getGameID();
 
+        LoadGame load = new LoadGame(LOAD_GAME, daoManager.getGames().getGame(gameID));
+        connections.broadcast(username, load);
     }
 
     private void makeMove(Session session, String username, MakeMove command)

@@ -22,7 +22,7 @@ public class Server
 
     public Server()
     {
-        websocketHandler = new WebsocketHandler();
+        websocketHandler = new WebsocketHandler(daoManager);
     }
 
     public int run(int desiredPort)

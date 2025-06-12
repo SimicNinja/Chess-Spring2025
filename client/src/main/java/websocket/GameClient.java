@@ -7,7 +7,6 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.GameData;
 import serverfacade.ResponseException;
-import websocket.commands.Connect;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import javax.websocket.*;
@@ -111,7 +110,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
     {
         try
         {
-            Connect join = new Connect(CONNECT, authToken, gameData.gameID(), gameData);
+            UserGameCommand join = new UserGameCommand(CONNECT, authToken, gameData.gameID());
             this.session.getBasicRemote().sendText(new Gson().toJson(join));
         }
         catch(IOException e)
