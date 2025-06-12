@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import model.GameData;
 import model.Records;
 import model.UserData;
+import server.websocket.WebsocketHandler;
 import spark.*;
 import service.*;
 
@@ -17,6 +18,12 @@ public class Server
     private final DAOManagement daoManager = new DAOManagement();
     private final UserManagement userManager = new UserManagement(daoManager);
     private final GameManagement gameManager = new GameManagement(daoManager);
+    private final WebsocketHandler websocketHandler;
+
+    public Server()
+    {
+        websocketHandler = new WebsocketHandler();
+    }
 
     public int run(int desiredPort)
     {
@@ -25,6 +32,8 @@ public class Server
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
+        Spark.webSocket("/ws", websocketHandler);
+
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::addUser);
         Spark.post("/session", this::login);
