@@ -119,7 +119,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             throw new ResponseException(500, "Error: " + e.getMessage());
         }
 
-        return "You have joined game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE
+        return "RUNGAME You have joined game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE
                 + " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE + ".\n"
                 + printBoard(color == ChessGame.TeamColor.WHITE);
     }
@@ -136,7 +136,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             throw new ResponseException(500, "Error: " + e.getMessage());
         }
 
-        return "You are observing game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE + ".\n"
+        return "RUNGAME You are observing game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE + ".\n"
                 + printBoard(true);
     }
 

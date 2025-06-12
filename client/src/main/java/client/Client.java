@@ -19,11 +19,13 @@ public class Client
 	private static ServerFacade facade;
 	private boolean signedIn = false;
 	private List<GameData> games;
+	private final REPL repl;
 
-	public Client(String serverUrl)
+	public Client(String serverUrl, REPL repl)
 	{
 		facade = new ServerFacade(serverUrl);
-	}
+        this.repl = repl;
+    }
 
 	public String eval(String input) throws ResponseException
 	{
@@ -155,7 +157,7 @@ public class Client
 		game = games.get(clientGameID - 1);
 
 		GameClient gameClient = new GameClient(game);
-		new REPL("").runGame(gameClient);
+		repl.passGameClient(gameClient);
 
 		return gameClient.joinGame(authToken, username, color);
 	}
@@ -170,7 +172,7 @@ public class Client
 		GameData game = games.get(clientGameID - 1);
 
 		GameClient gameClient = new GameClient(game);
-		new REPL("").runGame(gameClient);
+		repl.passGameClient(gameClient);
 
 		return gameClient.observeGame(authToken);
 	}

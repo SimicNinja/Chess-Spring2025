@@ -9,10 +9,18 @@ import static ui.EscapeSequences.*;
 public class REPL
 {
 	private final Client client;
+	private GameClient gameClient;
+	private boolean gameClientPresent = false;
 
 	public REPL(String serverUrl)
 	{
-		client = new Client(serverUrl);
+		client = new Client(serverUrl, this);
+	}
+
+	public void passGameClient(GameClient gameClient)
+	{
+		this.gameClient = gameClient;
+		gameClientPresent = true;
 	}
 
 	public void run()
@@ -38,11 +46,16 @@ public class REPL
 				var msg = e.getMessage();
 				System.out.print(SET_TEXT_COLOR_RED + msg);
 			}
+
+			if(gameClientPresent)
+			{
+				runGame();
+			}
 		}
 		System.out.println();
 	}
 
-	public void runGame(GameClient gameClient)
+	public void runGame()
 	{
 		Scanner scanner = new Scanner(System.in);
 		var result = "";
@@ -63,6 +76,8 @@ public class REPL
 			}
 		}
 		System.out.println();
+		gameClientPresent = false;
+		gameClient = null;
 	}
 
 	private void printPrompt()
