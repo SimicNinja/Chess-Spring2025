@@ -5,6 +5,7 @@ import model.AuthData;
 import model.GameData;
 import serverfacade.ResponseException;
 import serverfacade.ServerFacade;
+import websocket.GameClient;
 
 import java.util.Arrays;
 import java.util.List;

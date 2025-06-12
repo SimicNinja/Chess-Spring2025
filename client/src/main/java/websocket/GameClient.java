@@ -1,27 +1,88 @@
-package client;
+package websocket;
 
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import com.google.gson.Gson;
 import model.GameData;
+import serverfacade.ResponseException;
+import websocket.messages.ServerMessage;
+import javax.websocket.*;
+import java.net.URI;
 
 import static ui.EscapeSequences.*;
 
-public class GameClient
+public class GameClient extends Endpoint implements ServerMessageObserver
 {
-    private final String blackPlayer;
     private final GameData gameData;
-    private final String whitePlayer;
     private final ChessGame game;
+    private Session session;
 
-    public GameClient(GameData data)
+    public GameClient(GameData data) throws ResponseException
     {
         this.gameData = data;
-        this.whitePlayer = gameData.whiteUsername();
-        this.blackPlayer = gameData.blackUsername();
         this.game = gameData.game();
+
+        try
+        {
+            URI uri = new URI("ws://localhost:8080");
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            this.session = container.connectToServer(this, uri);
+        }
+        catch(Exception e)
+        {
+            throw new ResponseException(500, "Error: Could not establish websocket connection.");
+        }
+
+        this.session.addMessageHandler(new MessageHandler.Whole<String>()
+        {
+            @Override
+            public void onMessage(String message)
+            {
+                ServerMessage serverMsg = new Gson().fromJson(message, ServerMessage.class);
+                GameClient.this.notify(serverMsg);
+            }
+        });
     }
+
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig)
+    {
+
+    }
+
+    public void send(String msg) throws ResponseException
+    {
+        try
+        {
+            this.session.getBasicRemote().sendText(msg);
+        }
+        catch(Exception e)
+        {
+            throw new ResponseException(500, "Error: Unable to contact server.");
+        }
+    }
+
+    @Override
+    public void notify(ServerMessage message)
+    {
+        switch(message.getServerMessageType())
+        {
+            case NOTIFICATION -> displayNotification();
+            case ERROR -> displayError();
+            case LOAD_GAME -> loadGame();
+        }
+    }
+
+    public void displayNotification()
+    {}
+
+    public void displayError()
+    {}
+
+    public void loadGame()
+    {}
 
     public String printBoard(boolean whitePerspective)
     {
