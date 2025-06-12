@@ -8,8 +8,7 @@ import com.google.gson.Gson;
 import model.GameData;
 import serverfacade.ResponseException;
 import websocket.commands.UserGameCommand;
-import websocket.messages.LoadGame;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
@@ -62,7 +61,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         switch(message.getServerMessageType())
         {
             case NOTIFICATION -> displayNotification();
-            case ERROR -> displayError();
+            case ERROR -> displayError((ServerErrorMessage) message);
             case LOAD_GAME -> loadGame((LoadGame) message);
         }
     }
@@ -82,8 +81,10 @@ public class GameClient extends Endpoint implements ServerMessageObserver
     public void displayNotification()
     {}
 
-    public void displayError()
-    {}
+    public void displayError(ServerErrorMessage error)
+    {
+        System.out.println(("Error: " + error.getErrorMessage()));
+    }
 
     public void loadGame(LoadGame load)
     {

@@ -8,7 +8,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import service.DAOManagement;
 import websocket.commands.*;
-import websocket.messages.Error;
+import websocket.messages.ServerErrorMessage;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
@@ -48,11 +48,11 @@ public class WebsocketHandler
         }
         catch(UnauthorizedException e)
         {
-            sendMessage(session.getRemote(), new Error(ERROR, "Error: Unauthorized"));
+            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: Unauthorized"));
         }
         catch(Exception e)
         {
-            sendMessage(session.getRemote(), new Error(ERROR, "Error: " + e.getMessage()));
+            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: " + e.getMessage()));
         }
     }
 
