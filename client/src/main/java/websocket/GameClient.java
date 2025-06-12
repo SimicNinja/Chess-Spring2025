@@ -93,10 +93,10 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         var params = Arrays.copyOfRange(tokens, 1, tokens.length);
         return switch(cmd)
         {
-            case "redraw" -> redraw();
-            case "highlight" -> highlight();
-            case "move" -> makeMove();
-            case "resign" -> resign();
+            case "redraw" -> redraw(params);
+            case "highlight" -> highlight(params);
+            case "move" -> makeMove(params);
+            case "resign" -> resign(params);
             case "leave" -> "leave";
             case "help" -> help();
             default ->
@@ -119,7 +119,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             throw new ResponseException(500, "Error: " + e.getMessage());
         }
 
-        return "RUNGAME You have joined game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE
+        return "You have joined game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE
                 + " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE + ".\n"
                 + printBoard(color == ChessGame.TeamColor.WHITE);
     }
@@ -136,26 +136,26 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             throw new ResponseException(500, "Error: " + e.getMessage());
         }
 
-        return "RUNGAME You are observing game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE + ".\n"
+        return "You are observing game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE + ".\n"
                 + printBoard(true);
     }
 
-    public String redraw()
+    public String redraw(String... params)
     {
         return "";
     }
 
-    public String highlight()
+    public String highlight(String... params)
     {
         return "";
     }
 
-    public String makeMove()
+    public String makeMove(String... params)
     {
         return "";
     }
 
-    public String resign()
+    public String resign(String... params)
     {
         return "";
     }
@@ -263,5 +263,13 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         }
 
         return output.toString();
+    }
+
+    private void assertCommandLength(int length, String message, String... params) throws ResponseException
+    {
+        if(params.length != length)
+        {
+            throw new ResponseException(400, message);
+        }
     }
 }
