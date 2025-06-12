@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import model.GameData;
 import serverfacade.ResponseException;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGame;
 import websocket.messages.ServerMessage;
 import javax.websocket.*;
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 {
     private final GameData gameData;
     private final ChessGame game;
+    private boolean whitePlayer;
     private Session session;
 
     public GameClient(GameData data) throws ResponseException
@@ -36,7 +38,8 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         }
         catch(Exception e)
         {
-            throw new ResponseException(500, "Error: Could not establish websocket connection.");
+            throw new ResponseException(500, e.getMessage());
+//            throw new ResponseException(500, "Error: Could not establish websocket connection.");
         }
 
         this.session.addMessageHandler(new MessageHandler.Whole<String>()
@@ -60,7 +63,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         {
             case NOTIFICATION -> displayNotification();
             case ERROR -> displayError();
-            case LOAD_GAME -> loadGame();
+            case LOAD_GAME -> loadGame((LoadGame) message);
         }
     }
 
@@ -82,8 +85,10 @@ public class GameClient extends Endpoint implements ServerMessageObserver
     public void displayError()
     {}
 
-    public void loadGame()
-    {}
+    public void loadGame(LoadGame load)
+    {
+        System.out.println(printBoard(whitePlayer));
+    }
 
     public String eval(String input) throws ResponseException
     {
@@ -119,15 +124,14 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         }
 
         return "You have joined game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE
-                + " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE + ".\n"
-                + printBoard(color == ChessGame.TeamColor.WHITE);
+                + " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE + ".\n";
     }
 
     public String observeGame(String authToken) throws ResponseException
     {
         try
         {
-            Connect join = new Connect(CONNECT, authToken, gameData.gameID(), gameData);
+            UserGameCommand join = new UserGameCommand(CONNECT, authToken, gameData.gameID());
             this.session.getBasicRemote().sendText(new Gson().toJson(join));
         }
         catch(IOException e)
@@ -135,8 +139,9 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             throw new ResponseException(500, "Error: " + e.getMessage());
         }
 
-        return "You are observing game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE + ".\n"
-                + printBoard(true);
+        whitePlayer = true;
+
+        return "You are observing game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE + ".\n";
     }
 
     public String redraw(String... params)

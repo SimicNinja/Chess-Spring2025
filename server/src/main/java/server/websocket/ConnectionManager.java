@@ -31,7 +31,7 @@ public class ConnectionManager
             {
                 if(!conn.username.equals(excludeUsername))
                 {
-                    conn.send(message.toString());
+                    conn.send(message);
                 }
             }
             else

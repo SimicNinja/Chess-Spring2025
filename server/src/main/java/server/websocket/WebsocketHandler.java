@@ -11,6 +11,7 @@ import websocket.commands.*;
 import websocket.messages.Error;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 
@@ -72,7 +73,7 @@ public class WebsocketHandler
         int gameID = command.getGameID();
 
         LoadGame load = new LoadGame(LOAD_GAME, daoManager.getGames().getGame(gameID));
-        connections.broadcast(username, load);
+        sendMessage(session.getRemote(), load);
     }
 
     private void makeMove(Session session, String username, MakeMove command)
@@ -90,8 +91,8 @@ public class WebsocketHandler
 
     }
 
-    private void sendMessage(RemoteEndpoint remote, Error error) throws IOException
+    private void sendMessage(RemoteEndpoint remote, ServerMessage message) throws IOException
     {
-        remote.sendString(new Gson().toJson(error));
+        remote.sendString(new Gson().toJson(message));
     }
 }
