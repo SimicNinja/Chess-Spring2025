@@ -124,6 +124,22 @@ public class GameClient extends Endpoint implements ServerMessageObserver
                 + printBoard(color == ChessGame.TeamColor.WHITE);
     }
 
+    public String observeGame(String authToken) throws ResponseException
+    {
+        try
+        {
+            Connect join = new Connect(CONNECT, authToken, gameData.gameID(), gameData);
+            this.session.getBasicRemote().sendText(new Gson().toJson(join));
+        }
+        catch(IOException e)
+        {
+            throw new ResponseException(500, "Error: " + e.getMessage());
+        }
+
+        return "You are observing game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE + ".\n"
+                + printBoard(true);
+    }
+
     public String redraw()
     {
         return "";

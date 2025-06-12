@@ -155,6 +155,8 @@ public class Client
 		game = games.get(clientGameID - 1);
 
 		GameClient gameClient = new GameClient(game);
+		new REPL("").runGame(gameClient);
+
 		return gameClient.joinGame(authToken, username, color);
 	}
 
@@ -168,8 +170,9 @@ public class Client
 		GameData game = games.get(clientGameID - 1);
 
 		GameClient gameClient = new GameClient(game);
+		new REPL("").runGame(gameClient);
 
-		return "gameClient.printBoard(true);";
+		return gameClient.observeGame(authToken);
 	}
 
 	private ChessGame.TeamColor validateTeamColor(String input) throws ResponseException
