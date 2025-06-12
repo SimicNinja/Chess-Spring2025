@@ -7,6 +7,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.*;
 import websocket.messages.Error;
+import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class WebsocketHandler
 
             switch(command.getCommandType())
             {
-                case CONNECT -> connect(session, username, command);
+                case CONNECT -> connect(session, username, (Connect) command);
                 case MAKE_MOVE -> makeMove(session, username, (MakeMove) command);
                 case LEAVE -> leaveGame(session, username, command);
                 case RESIGN -> resign(session, username, command);
@@ -51,12 +52,16 @@ public class WebsocketHandler
         return "";
     }
 
-    private void connect(Session session, String username, UserGameCommand command) throws IOException
+    private void connect(Session session, String username, Connect command) throws IOException
     {
         connections.add(username, session);
+
         String msg = String.format("%s has joined the game.", username);
         Notification notification = new Notification(NOTIFICATION, msg);
         connections.broadcast(username, notification);
+
+        LoadGame load = new LoadGame(LOAD_GAME, command.getGame());
+
     }
 
     private void makeMove(Session session, String username, MakeMove command)
@@ -74,8 +79,8 @@ public class WebsocketHandler
 
     }
 
-    private void sendMessage(RemoteEndpoint remote, Error error)
+    private void sendMessage(RemoteEndpoint remote, Error error) throws IOException
     {
-
+        remote.sendString(new Gson().toJson(error));
     }
 }

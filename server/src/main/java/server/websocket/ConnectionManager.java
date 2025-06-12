@@ -13,7 +13,7 @@ public class ConnectionManager
 
     public void add(String username, Session session)
     {
-        var connection = new WebsocketConnection(username, session);
+        WebsocketConnection connection = new WebsocketConnection(username, session);
         connections.put(username, connection);
     }
 

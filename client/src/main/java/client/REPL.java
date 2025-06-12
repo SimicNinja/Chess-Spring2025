@@ -1,5 +1,7 @@
 package client;
 
+import websocket.GameClient;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -29,6 +31,29 @@ public class REPL
 			try
 			{
 				result = client.eval(line);
+				System.out.print(SET_TEXT_COLOR_BLUE + result);
+			}
+			catch(Throwable e)
+			{
+				var msg = e.getMessage();
+				System.out.print(SET_TEXT_COLOR_RED + msg);
+			}
+		}
+		System.out.println();
+	}
+
+	public void runGame(GameClient gameClient)
+	{
+		Scanner scanner = new Scanner(System.in);
+		var result = "";
+		while(!result.equals("leave"))
+		{
+			printPrompt();
+			String line = scanner.nextLine();
+
+			try
+			{
+				result = gameClient.eval(line);
 				System.out.print(SET_TEXT_COLOR_BLUE + result);
 			}
 			catch(Throwable e)

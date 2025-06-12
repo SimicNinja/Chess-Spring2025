@@ -155,13 +155,7 @@ public class Client
 		game = games.get(clientGameID - 1);
 
 		GameClient gameClient = new GameClient(game);
-		gameClient.joinGame(authToken);
-
-		boolean white = color == ChessGame.TeamColor.WHITE;
-
-		return "You have joined game #" + clientGameID + " " + RESET_TEXT_COLOR + game.gameName() + SET_TEXT_COLOR_BLUE
-				+ " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE + ".\n"
-				+ gameClient.printBoard(white);
+		return gameClient.joinGame(authToken, username, color);
 	}
 
 	public String observeGame(String... params) throws ResponseException
@@ -175,7 +169,7 @@ public class Client
 
 		GameClient gameClient = new GameClient(game);
 
-		return gameClient.printBoard(true);
+		return "gameClient.printBoard(true);";
 	}
 
 	private ChessGame.TeamColor validateTeamColor(String input) throws ResponseException

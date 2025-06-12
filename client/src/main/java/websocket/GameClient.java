@@ -7,11 +7,13 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.GameData;
 import serverfacade.ResponseException;
+import websocket.commands.Connect;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
 import static websocket.commands.UserGameCommand.CommandType.*;
@@ -52,16 +54,14 @@ public class GameClient extends Endpoint implements ServerMessageObserver
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
 
-    public void joinGame(String authToken) throws ResponseException
+    @Override
+    public void notify(ServerMessage message)
     {
-        try
+        switch(message.getServerMessageType())
         {
-            UserGameCommand join = new UserGameCommand(CONNECT, authToken, gameData.gameID());
-            this.session.getBasicRemote().sendText(new Gson().toJson(join));
-        }
-        catch(IOException e)
-        {
-            throw new ResponseException(500, "Error: " + e.getMessage());
+            case NOTIFICATION -> displayNotification();
+            case ERROR -> displayError();
+            case LOAD_GAME -> loadGame();
         }
     }
 
@@ -77,17 +77,6 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         }
     }
 
-    @Override
-    public void notify(ServerMessage message)
-    {
-        switch(message.getServerMessageType())
-        {
-            case NOTIFICATION -> displayNotification();
-            case ERROR -> displayError();
-            case LOAD_GAME -> loadGame();
-        }
-    }
-
     public void displayNotification()
     {}
 
@@ -97,7 +86,77 @@ public class GameClient extends Endpoint implements ServerMessageObserver
     public void loadGame()
     {}
 
-    public String printBoard(boolean whitePerspective)
+    public String eval(String input) throws ResponseException
+    {
+        var tokens = input.split(" ");
+        var cmd = (tokens.length > 0) ? tokens[0] : "help";
+        var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        return switch(cmd)
+        {
+            case "redraw" -> redraw();
+            case "highlight" -> highlight();
+            case "move" -> makeMove();
+            case "resign" -> resign();
+            case "leave" -> "leave";
+            case "help" -> help();
+            default ->
+            {
+                System.out.print(SET_TEXT_COLOR_RED + "Error: Not a valid command.\n");
+                yield help();
+            }
+        };
+    }
+
+    public String joinGame(String authToken, String username, ChessGame.TeamColor color) throws ResponseException
+    {
+        try
+        {
+            Connect join = new Connect(CONNECT, authToken, gameData.gameID(), gameData);
+            this.session.getBasicRemote().sendText(new Gson().toJson(join));
+        }
+        catch(IOException e)
+        {
+            throw new ResponseException(500, "Error: " + e.getMessage());
+        }
+
+        return "You have joined game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE
+                + " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE + ".\n"
+                + printBoard(color == ChessGame.TeamColor.WHITE);
+    }
+
+    public String redraw()
+    {
+        return "";
+    }
+
+    public String highlight()
+    {
+        return "";
+    }
+
+    public String makeMove()
+    {
+        return "";
+    }
+
+    public String resign()
+    {
+        return "";
+    }
+
+    public String help()
+    {
+        return SET_TEXT_COLOR_WHITE + """
+			- redraw - Redraws chess board.
+			- highlight <position> - Highlights legal moves of piece at specified position.
+			- move <start position> <end position> - Moves piece from start to end position (validates move is valid).
+			- resign
+			- leave
+			- help
+			""";
+    }
+
+    private String printBoard(boolean whitePerspective)
     {
         StringBuilder output = new StringBuilder();
         ChessBoard board = game.getBoard();
