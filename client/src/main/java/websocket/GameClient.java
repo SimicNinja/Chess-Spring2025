@@ -7,11 +7,14 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.GameData;
 import serverfacade.ResponseException;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import javax.websocket.*;
+import java.io.IOException;
 import java.net.URI;
 
 import static ui.EscapeSequences.*;
+import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class GameClient extends Endpoint implements ServerMessageObserver
 {
@@ -47,9 +50,19 @@ public class GameClient extends Endpoint implements ServerMessageObserver
     }
 
     @Override
-    public void onOpen(Session session, EndpointConfig endpointConfig)
-    {
+    public void onOpen(Session session, EndpointConfig endpointConfig) {}
 
+    public void joinGame(String authToken) throws ResponseException
+    {
+        try
+        {
+            UserGameCommand join = new UserGameCommand(CONNECT, authToken, gameData.gameID());
+            this.session.getBasicRemote().sendText(new Gson().toJson(join));
+        }
+        catch(IOException e)
+        {
+            throw new ResponseException(500, "Error: " + e.getMessage());
+        }
     }
 
     public void send(String msg) throws ResponseException

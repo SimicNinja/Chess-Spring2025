@@ -7,6 +7,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.*;
 import websocket.messages.Error;
+import websocket.messages.Notification;
 
 import java.io.IOException;
 
@@ -50,9 +51,12 @@ public class WebsocketHandler
         return "";
     }
 
-    private void connect(Session session, String username, UserGameCommand command)
+    private void connect(Session session, String username, UserGameCommand command) throws IOException
     {
-
+        connections.add(username, session);
+        String msg = String.format("%s has joined the game.", username);
+        Notification notification = new Notification(NOTIFICATION, msg);
+        connections.broadcast(username, notification);
     }
 
     private void makeMove(Session session, String username, MakeMove command)

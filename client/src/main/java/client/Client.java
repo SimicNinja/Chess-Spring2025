@@ -155,6 +155,7 @@ public class Client
 		game = games.get(clientGameID - 1);
 
 		GameClient gameClient = new GameClient(game);
+		gameClient.joinGame(authToken);
 
 		boolean white = color == ChessGame.TeamColor.WHITE;
 
