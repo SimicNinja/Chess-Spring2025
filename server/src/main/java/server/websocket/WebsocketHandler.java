@@ -66,14 +66,14 @@ public class WebsocketHandler
     {
         connections.add(username, session);
 
-        String msg = String.format("%s has joined the game.", username);
-        Notification notification = new Notification(NOTIFICATION, msg);
-        connections.broadcast(username, notification);
-
         int gameID = command.getGameID();
 
         LoadGame load = new LoadGame(LOAD_GAME, daoManager.getGames().getGame(gameID));
         sendMessage(session.getRemote(), load);
+
+        String msg = String.format("%s has joined the game.", username);
+        Notification notification = new Notification(NOTIFICATION, msg);
+        connections.broadcast(username, notification);
     }
 
     private void makeMove(Session session, String username, MakeMove command)
