@@ -29,6 +29,26 @@ public class ChessGame
     }
 
     /**
+     * Gets the current chessboard
+     *
+     * @return the chessboard
+     */
+    public ChessBoard getBoard()
+    {
+        return this.board;
+    }
+
+    /**
+     * Sets this game's chessboard with a given board
+     *
+     * @param board the new board to use
+     */
+    public void setBoard(ChessBoard board)
+    {
+        this.board = board;
+    }
+
+    /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn()
@@ -117,14 +137,21 @@ public class ChessGame
     }
 
     /**
-     * Determines if the given team is in check
+     * Helper & readability function for inCheck()
      *
-     * @param teamColor which team to check for check
-     * @return True if the specified team is in check
+     * @param team The current team
+     * @return The opposite team to the given parameter.
      */
-    public boolean isInCheck(TeamColor teamColor)
+    public TeamColor otherTeam(TeamColor team)
     {
-        return inCheck(teamColor, this.board);
+        if(team == TeamColor.BLACK)
+        {
+            return TeamColor.WHITE;
+        }
+        else
+        {
+            return TeamColor.BLACK;
+        }
     }
 
     /**
@@ -151,47 +178,19 @@ public class ChessGame
     }
 
     /**
-     * Gets the current chessboard
+     * Determines if the given team is in check
      *
-     * @return the chessboard
+     * @param teamColor which team to check for check
+     * @return True if the specified team is in check
      */
-    public ChessBoard getBoard()
+    public boolean isInCheck(TeamColor teamColor)
     {
-        return this.board;
-    }
-
-    /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board the new board to use
-     */
-    public void setBoard(ChessBoard board)
-    {
-        this.board = board;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if(o == null || getClass() != o.getClass())
-        {
-            return false;
-        }
-        ChessGame chessGame = (ChessGame) o;
-        return teamToMove == chessGame.teamToMove && Objects.equals(board, chessGame.board);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(teamToMove, board);
+        return inCheck(teamColor, this.board);
     }
 
     /**
      * Encapsulation of isInCheck() logic so the board state can be a parameter.
      *
-     * @param teamColor
-     * @param board
      * @return Whether the given team on the specified board is in check.
      */
     private boolean inCheck(TeamColor teamColor, ChessBoard board)
@@ -210,24 +209,6 @@ public class ChessGame
         return false;
     }
 
-    /**
-     * Helper & readability function for inCheck()
-     *
-     * @param team The current team
-     * @return The opposite team to the given parameter.
-     */
-    public TeamColor otherTeam(TeamColor team)
-    {
-        if(team == TeamColor.BLACK)
-        {
-            return TeamColor.WHITE;
-        }
-        else
-        {
-            return TeamColor.BLACK;
-        }
-    }
-
     private boolean noTeamMoves(TeamColor color)
     {
         for(ChessPieceAndPosition piece : board.getTeamPieces(color))
@@ -240,6 +221,8 @@ public class ChessGame
         return true;
     }
 
+    public record ChessPieceAndPosition(ChessPiece piece, ChessPosition position) {}
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -248,7 +231,20 @@ public class ChessGame
         WHITE, BLACK
     }
 
-    public record ChessPieceAndPosition(ChessPiece piece, ChessPosition position)
+    @Override
+    public boolean equals(Object o)
     {
+        if(o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return teamToMove == chessGame.teamToMove && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(teamToMove, board);
     }
 }
