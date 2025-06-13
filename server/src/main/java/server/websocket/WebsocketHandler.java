@@ -1,5 +1,8 @@
 package server.websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
@@ -76,9 +79,29 @@ public class WebsocketHandler
         connections.broadcast(username, notification);
     }
 
-    private void makeMove(Session session, String username, MakeMove command)
+    private void makeMove(Session session, String username, MakeMove command) throws IOException
     {
+        ChessMove move = command.getMove();
+        int gameID = command.getGameID();
+        ChessGame game = null;
 
+        try
+        {
+            game = daoManager.getGames().getGame(gameID).game();
+
+            game.makeMove(move);
+
+            daoManager.getGames().makeMove(gameID, game);
+
+            LoadGame load = new LoadGame(LOAD_GAME, daoManager.getGames().getGame(gameID));
+            sendMessage(session.getRemote(), load);
+            connections.broadcast(username, load);
+
+        }
+        catch(InvalidMoveException | DataAccessException e)
+        {
+            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: " + e.getMessage()));
+        }
     }
 
     private void leaveGame(Session session, String username, UserGameCommand command)

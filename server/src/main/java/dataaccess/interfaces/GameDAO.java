@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface GameDAO
 {
+	public void makeMove(int gameID, ChessGame game) throws DataAccessException;
 	public GameData getGame(int gameID) throws DataAccessException;
 	public List<GameData> listGames();
 	public boolean duplicateGame(String gameName);

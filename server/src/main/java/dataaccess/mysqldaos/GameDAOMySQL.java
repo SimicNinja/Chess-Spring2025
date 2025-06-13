@@ -24,6 +24,38 @@ public class GameDAOMySQL extends DAOMySQL implements GameDAO
 {
 	private final String tableName = "gameData";
 
+	public void makeMove(int gameID, ChessGame game) throws DataAccessException
+	{
+		String sql = "UPDATE gameData SET game = ? WHERE gameID = ?";
+
+		try(Connection conn = DatabaseManager.getConnection())
+		{
+			try(var statement = conn.prepareStatement(sql))
+			{
+				statement.setString(1, new Gson().toJson(game));
+				statement.setInt(2, gameID);
+
+				statement.executeUpdate();
+			}
+			catch(SQLException e)
+			{
+				if((e.getMessage().contains("gameID") && e.getMessage().contains("null"))
+						|| e.getMessage().contains("empty"))
+				{
+					throw new DataAccessException("You must provide a gameID.");
+				}
+				else
+				{
+					throw e;
+				}
+			}
+		}
+		catch(SQLException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public GameData getGame(int gameID) throws DataAccessException
 	{
