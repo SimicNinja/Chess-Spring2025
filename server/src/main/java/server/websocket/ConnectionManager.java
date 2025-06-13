@@ -11,9 +11,9 @@ public class ConnectionManager
 {
 	public final ConcurrentHashMap<String, WebsocketConnection> connections = new ConcurrentHashMap<>();
 
-	public void add(String username, Session session)
+	public void add(String username, int gameID, Session session)
 	{
-		WebsocketConnection connection = new WebsocketConnection(username, session);
+		WebsocketConnection connection = new WebsocketConnection(username, gameID, session);
 		connections.put(username, connection);
 	}
 
@@ -22,14 +22,14 @@ public class ConnectionManager
 		connections.remove(username);
 	}
 
-	public void broadcast(String excludeUsername, ServerMessage message) throws IOException
+	public void broadcast(String excludeUsername, int gameID, ServerMessage message) throws IOException
 	{
 		var removeList = new ArrayList<WebsocketConnection>();
 		for(var conn : connections.values())
 		{
 			if(conn.session.isOpen())
 			{
-				if(!conn.username.equals(excludeUsername))
+				if(!conn.username.equals(excludeUsername) && conn.gameID == gameID)
 				{
 					conn.send(message);
 				}

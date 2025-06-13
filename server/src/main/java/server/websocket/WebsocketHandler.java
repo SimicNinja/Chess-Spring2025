@@ -74,7 +74,7 @@ public class WebsocketHandler
     private void connect(Session session, String username, UserGameCommand command)
             throws IOException, DataAccessException
     {
-        connections.add(username, session);
+        connections.add(username, command.getGameID(), session);
 
         int gameID = command.getGameID();
 
@@ -82,7 +82,7 @@ public class WebsocketHandler
         sendMessage(session.getRemote(), load);
 
         String msg = String.format("%s has joined the game.", username);
-        connections.broadcast(username, new Notification(NOTIFICATION, msg));
+        connections.broadcast(username, gameID, new Notification(NOTIFICATION, msg));
     }
 
     private void makeMove(Session session, String username, MakeMove command) throws IOException
@@ -107,11 +107,11 @@ public class WebsocketHandler
             daoManager.getGames().setGame(gameID, game);
 
             LoadGame load = new LoadGame(LOAD_GAME, gameData);
-            connections.broadcast(null, load);
+            connections.broadcast(null, gameID, load);
 
             String msg = String.format("%s moved %s from %s to %s.", username, piece.getPieceType(),
                     move.getStartPosition(), move.getEndPosition());
-            connections.broadcast(username, new Notification(NOTIFICATION, msg));
+            connections.broadcast(username, gameID, new Notification(NOTIFICATION, msg));
 
             ChessGame.TeamColor endangeredTeam = game.otherTeam(piece.getTeamColor());
 
@@ -120,14 +120,14 @@ public class WebsocketHandler
                 game.setGameOver();
                 daoManager.getGames().setGame(gameID, game);
                 String message = String.format("%s is in checkmate. %s wins!", getTeamUsername(endangeredTeam, gameData), username);
-                connections.broadcast(null, new Notification(NOTIFICATION, message));
+                connections.broadcast(null, gameID, new Notification(NOTIFICATION, message));
             }
             else if(game.isInStalemate(endangeredTeam))
             {
                 game.setGameOver();
                 daoManager.getGames().setGame(gameID, game);
                 String message = "The game is at a stalemate.";
-                connections.broadcast(null, new Notification(NOTIFICATION, message));
+                connections.broadcast(null, gameID, new Notification(NOTIFICATION, message));
             }
         }
         catch(InvalidMoveException | DataAccessException e)
@@ -156,7 +156,7 @@ public class WebsocketHandler
                 daoManager.getGames().leaveGame(gameID, BLACK);
             }
 
-            connections.broadcast(username, new Notification(NOTIFICATION, String.format("%s has left the game.", username)));
+            connections.broadcast(username, gameID, new Notification(NOTIFICATION, String.format("%s has left the game.", username)));
             connections.remove(username);
         }
         catch(DataAccessException e)
@@ -186,7 +186,7 @@ public class WebsocketHandler
             game.setGameOver();
             daoManager.getGames().setGame(gameID, game);
 
-            connections.broadcast(null, new Notification(NOTIFICATION, String.format("%s has resigned.", username)));
+            connections.broadcast(null, gameID, new Notification(NOTIFICATION, String.format("%s has resigned.", username)));
         }
         catch(DataAccessException | InvalidMoveException e)
         {

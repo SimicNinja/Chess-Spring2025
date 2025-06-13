@@ -9,11 +9,13 @@ import java.io.IOException;
 public class WebsocketConnection
 {
     public String username;
+    public int gameID;
     public Session session;
 
-    public WebsocketConnection(String username, Session session)
+    public WebsocketConnection(String username, int gameID, Session session)
     {
         this.username = username;
+        this.gameID = gameID;
         this.session = session;
     }
 
