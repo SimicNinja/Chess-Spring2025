@@ -116,14 +116,14 @@ public class WebsocketHandler
 
             if(game.isInCheckmate(endangeredTeam))
             {
-                game.setGameOver(true);
+                game.setGameOver();
                 daoManager.getGames().setGame(gameID, game);
                 String message = String.format("%s is in checkmate. %s wins!", getTeamUsername(endangeredTeam, gameData), username);
                 connections.broadcast(null, new Notification(NOTIFICATION, message));
             }
             else if(game.isInStalemate(endangeredTeam))
             {
-                game.setGameOver(true);
+                game.setGameOver();
                 daoManager.getGames().setGame(gameID, game);
                 String message = "The game is at a stalemate.";
                 connections.broadcast(null, new Notification(NOTIFICATION, message));
@@ -149,9 +149,26 @@ public class WebsocketHandler
 
     }
 
-    private void resign(Session session, String username, UserGameCommand command)
-    {
+    private void resign(Session session, String username, UserGameCommand command) throws IOException
+	{
+        int gameID = command.getGameID();
+        GameData gameData;
+        ChessGame game;
 
+        try
+        {
+            gameData = daoManager.getGames().getGame(gameID);
+            game = gameData.game();
+
+            game.setGameOver();
+            daoManager.getGames().setGame(gameID, game);
+
+            connections.broadcast(null, new Notification(NOTIFICATION, String.format("%s has resigned.", username)));
+        }
+        catch(DataAccessException e)
+        {
+            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: " + e.getMessage()));
+        }
     }
 
     private void sendMessage(RemoteEndpoint remote, ServerMessage message) throws IOException
