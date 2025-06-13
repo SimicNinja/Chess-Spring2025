@@ -20,6 +20,7 @@ import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 
+import static chess.ChessGame.TeamColor.*;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 @WebSocket
@@ -137,7 +138,7 @@ public class WebsocketHandler
 
     private String getTeamUsername(ChessGame.TeamColor color, GameData gameData)
     {
-        if(color == ChessGame.TeamColor.WHITE)
+        if(color == WHITE)
         {
             return gameData.whiteUsername();
         }
@@ -160,12 +161,19 @@ public class WebsocketHandler
             gameData = daoManager.getGames().getGame(gameID);
             game = gameData.game();
 
+            //Checks whether the gameOver flag is set, or if the player making the request is an observer
+            if(game.isGameOver() || (!username.equals(getTeamUsername(WHITE, gameData))
+                    && !username.equals(getTeamUsername(BLACK, gameData))))
+            {
+                throw new InvalidMoveException("You are only allowed to resign if you are a player and the game isn't over.");
+            }
+
             game.setGameOver();
             daoManager.getGames().setGame(gameID, game);
 
             connections.broadcast(null, new Notification(NOTIFICATION, String.format("%s has resigned.", username)));
         }
-        catch(DataAccessException e)
+        catch(DataAccessException | InvalidMoveException e)
         {
             sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: " + e.getMessage()));
         }
