@@ -31,7 +31,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
         try
         {
-            URI uri = new URI("ws://localhost:8080");
+            URI uri = new URI("ws://localhost:8080/ws");
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, uri);
         }
@@ -46,8 +46,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             @Override
             public void onMessage(String message)
             {
-                ServerMessage serverMsg = new Gson().fromJson(message, ServerMessage.class);
-                GameClient.this.notify(serverMsg);
+                GameClient.this.notify(message);
             }
         });
     }
@@ -56,21 +55,27 @@ public class GameClient extends Endpoint implements ServerMessageObserver
     public void onOpen(Session session, EndpointConfig endpointConfig) {}
 
     @Override
-    public void notify(ServerMessage message)
+    public void notify(String message)
     {
-        switch(message.getServerMessageType())
+        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+
+        switch(serverMessage.getServerMessageType())
         {
             case NOTIFICATION -> displayNotification();
-            case ERROR -> displayError((ServerErrorMessage) message);
-            case LOAD_GAME -> loadGame((LoadGame) message);
+            case ERROR -> displayError((ServerErrorMessage) serverMessage);
+            case LOAD_GAME ->
+            {
+                LoadGame msg = new Gson().fromJson(message, LoadGame.class);
+                loadGame(msg);
+            }
         }
     }
 
-    public void send(String msg) throws ResponseException
+    public void sendCommand(UserGameCommand command) throws ResponseException
     {
         try
         {
-            this.session.getBasicRemote().sendText(msg);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         }
         catch(Exception e)
         {
@@ -88,7 +93,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
     public void loadGame(LoadGame load)
     {
-        System.out.println(printBoard(whitePlayer));
+        System.out.println("\n" + printBoard(whitePlayer));
     }
 
     public String eval(String input) throws ResponseException

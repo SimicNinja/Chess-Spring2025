@@ -48,10 +48,10 @@ public class WebsocketHandler
             {
                 case CONNECT -> connect(session, username, command);
                 case MAKE_MOVE ->
-                    {
-                        MakeMove moveCommand = new Gson().fromJson(message, MakeMove.class);
-                        makeMove(session, username, moveCommand);
-                    }
+                {
+                    MakeMove moveCommand = new Gson().fromJson(message, MakeMove.class);
+                    makeMove(session, username, moveCommand);
+                }
                 case LEAVE -> leaveGame(session, username, command);
                 case RESIGN -> resign(session, username, command);
             }
