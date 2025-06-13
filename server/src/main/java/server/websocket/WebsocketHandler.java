@@ -103,7 +103,7 @@ public class WebsocketHandler
             }
 
             game.makeMove(move);
-            daoManager.getGames().makeMove(gameID, game);
+            daoManager.getGames().setGame(gameID, game);
 
             LoadGame load = new LoadGame(LOAD_GAME, gameData);
             connections.broadcast(null, load);
@@ -116,11 +116,15 @@ public class WebsocketHandler
 
             if(game.isInCheckmate(endangeredTeam))
             {
+                game.setGameOver(true);
+                daoManager.getGames().setGame(gameID, game);
                 String message = String.format("%s is in checkmate. %s wins!", getTeamUsername(endangeredTeam, gameData), username);
                 connections.broadcast(null, new Notification(NOTIFICATION, message));
             }
             else if(game.isInStalemate(endangeredTeam))
             {
+                game.setGameOver(true);
+                daoManager.getGames().setGame(gameID, game);
                 String message = "The game is at a stalemate.";
                 connections.broadcast(null, new Notification(NOTIFICATION, message));
             }

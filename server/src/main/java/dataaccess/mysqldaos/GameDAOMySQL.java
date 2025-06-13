@@ -24,7 +24,7 @@ public class GameDAOMySQL extends DAOMySQL implements GameDAO
 {
 	private final String tableName = "gameData";
 
-	public void makeMove(int gameID, ChessGame game) throws DataAccessException
+	public void setGame(int gameID, ChessGame game) throws DataAccessException
 	{
 		String sql = "UPDATE gameData SET game = ? WHERE gameID = ?";
 

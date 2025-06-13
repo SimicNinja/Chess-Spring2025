@@ -14,6 +14,7 @@ public class ChessGame
 {
     private TeamColor teamToMove;
     private ChessBoard board;
+    private boolean gameOver = false;
 
     public ChessGame()
     {
@@ -64,6 +65,16 @@ public class ChessGame
     public void setTeamTurn(TeamColor team)
     {
         teamToMove = team;
+    }
+
+    public boolean isGameOver()
+    {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver)
+    {
+        this.gameOver = gameOver;
     }
 
     /**
@@ -125,7 +136,7 @@ public class ChessGame
         ChessPiece piece = this.board.getPiece(move.getStartPosition());
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
 
-        if(piece != null && validMoves.contains(move) && piece.getTeamColor() == getTeamTurn())
+        if(piece != null && validMoves.contains(move) && piece.getTeamColor() == getTeamTurn() && !gameOver)
         {
             this.board.movePiece(move);
             setTeamTurn(otherTeam(getTeamTurn()));
@@ -221,7 +232,7 @@ public class ChessGame
         return true;
     }
 
-    public record ChessPieceAndPosition(ChessPiece piece, ChessPosition position) {}
+	public record ChessPieceAndPosition(ChessPiece piece, ChessPosition position) {}
 
     /**
      * Enum identifying the 2 possible teams in a chess game

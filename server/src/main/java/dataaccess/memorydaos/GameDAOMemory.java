@@ -14,7 +14,7 @@ public class GameDAOMemory implements GameDAO
 	private Map<Integer, GameData> idMap = new HashMap<>();
 
 	@Override
-	public void makeMove(int gameID, ChessGame chessGame) throws DataAccessException
+	public void setGame(int gameID, ChessGame chessGame) throws DataAccessException
 	{
 		GameData oldGameData = getGame(gameID);
 		idMap.replace(gameID, new GameData(gameID, oldGameData.whiteUsername(),
