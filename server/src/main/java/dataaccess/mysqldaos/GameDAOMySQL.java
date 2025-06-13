@@ -244,6 +244,39 @@ public class GameDAOMySQL extends DAOMySQL implements GameDAO
 		}
 	}
 
+	public void leaveGame(int gameID, ChessGame.TeamColor color) throws DataAccessException
+	{
+		String sql;
+
+		if(color == ChessGame.TeamColor.WHITE)
+		{
+			sql = "UPDATE " + tableName + " SET whiteUsername = null WHERE gameID = ?";
+		}
+		else
+		{
+			sql = "UPDATE " + tableName + " SET blackUsername = null WHERE gameID = ?";
+		}
+
+		try(Connection conn = DatabaseManager.getConnection())
+		{
+			try(var statement = conn.prepareStatement(sql))
+			{
+				statement.setInt(1, gameID);
+
+				int rowsAffected = statement.executeUpdate();
+
+				if(rowsAffected == 0)
+				{
+					throw new DataAccessException("Game with ID " + gameID + " does not exist.");
+				}
+			}
+		}
+		catch(SQLException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public void clear()
 	{

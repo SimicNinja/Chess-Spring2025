@@ -81,6 +81,24 @@ public class GameDAOMemory implements GameDAO
 		idMap.put(gameID, newGame);
 	}
 
+	public void leaveGame(int gameID, ChessGame.TeamColor color)
+	{
+		GameData game = idMap.get(gameID);
+		GameData newGame;
+
+		if(color == ChessGame.TeamColor.WHITE)
+		{
+			newGame = new GameData(gameID, null, game.blackUsername(), game.gameName(), game.game());
+		}
+		else
+		{
+			newGame = new GameData(gameID, game.whiteUsername(), null, game.gameName(), game.game());
+		}
+
+		idMap.remove(gameID);
+		idMap.put(gameID, newGame);
+	}
+
 	public void clear()
 	{
 		idMap.clear();

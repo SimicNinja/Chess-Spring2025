@@ -13,6 +13,7 @@ public interface GameDAO
 	public boolean duplicateGame(String gameName);
 	public int newGame(String gameName) throws DataAccessException;
 	public void joinGame(int gameID, ChessGame.TeamColor color, String username) throws DataAccessException;
+	public void leaveGame(int gameID, ChessGame.TeamColor color) throws DataAccessException;
 	public void clear();
 	public boolean isEmpty();
 }

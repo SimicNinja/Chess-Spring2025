@@ -136,18 +136,26 @@ public class WebsocketHandler
         }
     }
 
-    private String getTeamUsername(ChessGame.TeamColor color, GameData gameData)
-    {
-        if(color == WHITE)
+    private void leaveGame(Session session, String username, UserGameCommand command) throws IOException
+	{
+        int gameID = command.getGameID();
+        GameData gameData;
+        ChessGame game;
+
+        try
         {
-            return gameData.whiteUsername();
+            gameData = daoManager.getGames().getGame(gameID);
+            game = gameData.game();
+
+            if(username.equals(getTeamUsername(WHITE, gameData)))
+            {
+                GameData updated = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), game);
+            }
         }
-        return gameData.blackUsername();
-    }
-
-    private void leaveGame(Session session, String username, UserGameCommand command)
-    {
-
+        catch(DataAccessException e)
+        {
+            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error " + e.getMessage()));
+        }
     }
 
     private void resign(Session session, String username, UserGameCommand command) throws IOException
@@ -177,6 +185,15 @@ public class WebsocketHandler
         {
             sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: " + e.getMessage()));
         }
+    }
+
+    private String getTeamUsername(ChessGame.TeamColor color, GameData gameData)
+    {
+        if(color == WHITE)
+        {
+            return gameData.whiteUsername();
+        }
+        return gameData.blackUsername();
     }
 
     private void sendMessage(RemoteEndpoint remote, ServerMessage message) throws IOException
