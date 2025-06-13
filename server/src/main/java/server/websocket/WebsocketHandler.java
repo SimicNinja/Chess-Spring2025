@@ -95,14 +95,18 @@ public class WebsocketHandler
         {
             gameData = daoManager.getGames().getGame(gameID);
             game = gameData.game();
+            ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+
+            if(!username.equals(getTeamUsername(piece.getTeamColor(), gameData)))
+            {
+                throw new InvalidMoveException("You may only move your own pieces while it is your color's turn.");
+            }
 
             game.makeMove(move);
             daoManager.getGames().makeMove(gameID, game);
 
             LoadGame load = new LoadGame(LOAD_GAME, gameData);
             connections.broadcast(null, load);
-
-            ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
 
             String msg = String.format("%s moved %s from %s to %s.", username, piece.getPieceType(),
                     move.getStartPosition(), move.getEndPosition());
@@ -112,7 +116,7 @@ public class WebsocketHandler
 
             if(game.isInCheckmate(endangeredTeam))
             {
-                String message = String.format("%s is in checkmate. %s wins!", endangeredUsername(endangeredTeam, gameData), username);
+                String message = String.format("%s is in checkmate. %s wins!", getTeamUsername(endangeredTeam, gameData), username);
                 connections.broadcast(null, new Notification(NOTIFICATION, message));
             }
             else if(game.isInStalemate(endangeredTeam))
@@ -127,9 +131,9 @@ public class WebsocketHandler
         }
     }
 
-    private String endangeredUsername(ChessGame.TeamColor endangeredTeam, GameData gameData)
+    private String getTeamUsername(ChessGame.TeamColor color, GameData gameData)
     {
-        if(endangeredTeam == ChessGame.TeamColor.WHITE)
+        if(color == ChessGame.TeamColor.WHITE)
         {
             return gameData.whiteUsername();
         }
