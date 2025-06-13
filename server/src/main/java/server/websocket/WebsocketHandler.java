@@ -149,8 +149,15 @@ public class WebsocketHandler
 
             if(username.equals(getTeamUsername(WHITE, gameData)))
             {
-                GameData updated = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), game);
+                daoManager.getGames().leaveGame(gameID, WHITE);
             }
+            else if(username.equals(getTeamUsername(BLACK, gameData)))
+            {
+                daoManager.getGames().leaveGame(gameID, BLACK);
+            }
+
+            connections.broadcast(username, new Notification(NOTIFICATION, String.format("%s has left the game.", username)));
+            connections.remove(username);
         }
         catch(DataAccessException e)
         {
