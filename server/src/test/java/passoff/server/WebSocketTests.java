@@ -451,8 +451,8 @@ public class WebSocketTests
 	{
 		Assertions.assertEquals(ServerMessage.ServerMessageType.LOAD_GAME, message.getServerMessageType(),
 				("Message " + "for %s was not a LOAD_GAME message: %s").formatted(username, message));
-		Assertions.assertNotNull(message.getGame(),
-				("%s's LOAD_GAME message did not contain a game (Make sure it's " + "specifically called 'game')").formatted(username));
+		Assertions.assertNotNull(message.getGame(), ("%s's LOAD_GAME message did not contain a game (Make sure it's "
+				+ "specifically called 'game')").formatted(username));
 		Assertions.assertNull(message.getMessage(),
 				"%s's LOAD_GAME message contained a message: %s".formatted(username, message.getMessage()));
 		Assertions.assertNull(message.getErrorMessage(),
