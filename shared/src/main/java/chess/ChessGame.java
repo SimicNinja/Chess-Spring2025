@@ -216,7 +216,7 @@ public class ChessGame
      * @param team The current team
      * @return The opposite team to the given parameter.
      */
-    private TeamColor otherTeam(TeamColor team)
+    public TeamColor otherTeam(TeamColor team)
     {
         if(team == TeamColor.BLACK)
         {

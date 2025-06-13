@@ -2,9 +2,11 @@ package server.websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -44,7 +46,11 @@ public class WebsocketHandler
             switch(command.getCommandType())
             {
                 case CONNECT -> connect(session, username, command);
-                case MAKE_MOVE -> makeMove(session, username, (MakeMove) command);
+                case MAKE_MOVE ->
+                    {
+                        MakeMove moveCommand = new Gson().fromJson(message, MakeMove.class);
+                        makeMove(session, username, moveCommand);
+                    }
                 case LEAVE -> leaveGame(session, username, command);
                 case RESIGN -> resign(session, username, command);
             }
@@ -75,33 +81,59 @@ public class WebsocketHandler
         sendMessage(session.getRemote(), load);
 
         String msg = String.format("%s has joined the game.", username);
-        Notification notification = new Notification(NOTIFICATION, msg);
-        connections.broadcast(username, notification);
+        connections.broadcast(username, new Notification(NOTIFICATION, msg));
     }
 
     private void makeMove(Session session, String username, MakeMove command) throws IOException
     {
         ChessMove move = command.getMove();
         int gameID = command.getGameID();
+        GameData gameData;
         ChessGame game = null;
 
         try
         {
-            game = daoManager.getGames().getGame(gameID).game();
+            gameData = daoManager.getGames().getGame(gameID);
+            game = gameData.game();
 
             game.makeMove(move);
-
             daoManager.getGames().makeMove(gameID, game);
 
-            LoadGame load = new LoadGame(LOAD_GAME, daoManager.getGames().getGame(gameID));
-            sendMessage(session.getRemote(), load);
-            connections.broadcast(username, load);
+            LoadGame load = new LoadGame(LOAD_GAME, gameData);
+            connections.broadcast(null, load);
 
+            ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+
+            String msg = String.format("%s moved %s from %s to %s.", username, piece.getPieceType(),
+                    move.getStartPosition(), move.getEndPosition());
+            connections.broadcast(username, new Notification(NOTIFICATION, msg));
+
+            ChessGame.TeamColor endangeredTeam = game.otherTeam(piece.getTeamColor());
+
+            if(game.isInCheckmate(endangeredTeam))
+            {
+                String message = String.format("%s is in checkmate. %s wins!", endangeredUsername(endangeredTeam, gameData), username);
+                connections.broadcast(null, new Notification(NOTIFICATION, message));
+            }
+            else if(game.isInStalemate(endangeredTeam))
+            {
+                String message = "The game is at a stalemate.";
+                connections.broadcast(null, new Notification(NOTIFICATION, message));
+            }
         }
         catch(InvalidMoveException | DataAccessException e)
         {
             sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: " + e.getMessage()));
         }
+    }
+
+    private String endangeredUsername(ChessGame.TeamColor endangeredTeam, GameData gameData)
+    {
+        if(endangeredTeam == ChessGame.TeamColor.WHITE)
+        {
+            return gameData.whiteUsername();
+        }
+        return gameData.blackUsername();
     }
 
     private void leaveGame(Session session, String username, UserGameCommand command)
