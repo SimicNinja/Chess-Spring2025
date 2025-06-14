@@ -134,6 +134,11 @@ public class WebsocketHandler
                 String message = String.format("%s is in checkmate. %s wins!", getTeamUsername(endangeredTeam, gameData), username);
                 connections.broadcast(null, gameID, new Notification(NOTIFICATION, message));
             }
+            else if(game.isInCheck(endangeredTeam))
+            {
+                String message = String.format("%s is in check.", getTeamUsername(endangeredTeam, gameData));
+                connections.broadcast(null, gameID, new Notification(NOTIFICATION, message));
+            }
             else if(game.isInStalemate(endangeredTeam))
             {
                 game.setGameOver();
