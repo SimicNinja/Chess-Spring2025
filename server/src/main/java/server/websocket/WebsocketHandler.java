@@ -19,6 +19,7 @@ import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static chess.ChessGame.TeamColor.*;
 import static websocket.messages.ServerMessage.ServerMessageType.*;
@@ -77,11 +78,22 @@ public class WebsocketHandler
         connections.add(username, command.getGameID(), session);
 
         int gameID = command.getGameID();
+        GameData gameData = daoManager.getGames().getGame(gameID);
 
-        LoadGame load = new LoadGame(LOAD_GAME, daoManager.getGames().getGame(gameID));
+        LoadGame load = new LoadGame(LOAD_GAME, gameData);
         sendMessage(session.getRemote(), load);
 
-        String msg = String.format("%s has joined the game.", username);
+        ChessGame.TeamColor color = getUsernameTeam(username, gameData);
+        String msg;
+        if(color != null)
+        {
+            msg = String.format("%s has joined the game as %s", username, color);
+        }
+        else
+        {
+            msg = String.format("%s has joined the game as an observer.", username);
+        }
+
         connections.broadcast(username, gameID, new Notification(NOTIFICATION, msg));
     }
 
@@ -191,6 +203,22 @@ public class WebsocketHandler
         catch(DataAccessException | InvalidMoveException e)
         {
             sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, e.getMessage()));
+        }
+    }
+
+    private ChessGame.TeamColor getUsernameTeam(String username, GameData gameData)
+    {
+        if(username.equals(gameData.whiteUsername()))
+        {
+            return WHITE;
+        }
+        else if(username.equals(gameData.blackUsername()))
+        {
+            return BLACK;
+        }
+        else
+        {
+            return null;
         }
     }
 
