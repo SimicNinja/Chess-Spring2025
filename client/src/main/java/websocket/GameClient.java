@@ -21,14 +21,16 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 {
     private final GameData gameData;
     private ChessGame game;
-    private ChessGame.TeamColor color;
-    private Session session;
+    private final ChessGame.TeamColor color;
+    private final String authToken;
+    private final Session session;
 
-    public GameClient(GameData data, ChessGame.TeamColor color) throws ResponseException
+    public GameClient(GameData data, ChessGame.TeamColor color, String authToken) throws ResponseException
     {
         this.gameData = data;
         this.color = color;
         this.game = gameData.game();
+        this.authToken = authToken;
 
         try
         {
@@ -119,7 +121,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             case "highlight" -> highlight(params);
             case "move" -> makeMove(params);
             case "resign" -> resign(params);
-            case "leave" -> "leave";
+            case "leave" -> leave(params);
             case "help" -> help();
             default ->
             {
@@ -160,9 +162,11 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         return "You are observing game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE + ".\n";
     }
 
-    public String redraw(String... params)
-    {
-        return "";
+    public String redraw(String... params) throws ResponseException
+	{
+        assertCommandLength(0, "Redraw command has no additional inputs.", params);
+
+        return printBoard(whitePerspective(color));
     }
 
     public String highlight(String... params)
@@ -175,9 +179,20 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         return "";
     }
 
-    public String resign(String... params)
+    public String resign(String... params) throws ResponseException
+	{
+        assertCommandLength(0, "Resign command has no additional inputs.", params);
+        sendCommand(new UserGameCommand(RESIGN, authToken, gameData.gameID()));
+
+        return "You have resigned from this game. You must leave the game using the command before you quit.";
+    }
+
+    public String leave(String... params) throws ResponseException
     {
-        return "";
+        assertCommandLength(0, "Leave command has no additional inputs.", params);
+        sendCommand(new UserGameCommand(LEAVE, authToken, gameData.gameID()));
+
+        return "leave";
     }
 
     public String help()
