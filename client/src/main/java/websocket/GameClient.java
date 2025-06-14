@@ -20,13 +20,14 @@ import static websocket.commands.UserGameCommand.CommandType.*;
 public class GameClient extends Endpoint implements ServerMessageObserver
 {
     private final GameData gameData;
-    private final ChessGame game;
-    private boolean whitePlayer;
+    private ChessGame game;
+    private ChessGame.TeamColor color;
     private Session session;
 
-    public GameClient(GameData data) throws ResponseException
+    public GameClient(GameData data, ChessGame.TeamColor color) throws ResponseException
     {
         this.gameData = data;
+        this.color = color;
         this.game = gameData.game();
 
         try
@@ -61,8 +62,16 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
         switch(serverMessage.getServerMessageType())
         {
-            case NOTIFICATION -> displayNotification();
-            case ERROR -> displayError((ServerErrorMessage) serverMessage);
+            case NOTIFICATION ->
+            {
+                Notification msg = new Gson().fromJson(message, Notification.class);
+                displayNotification(msg);
+            }
+            case ERROR ->
+            {
+                ServerErrorMessage msg = new Gson().fromJson(message, ServerErrorMessage.class);
+                displayError(msg);
+            }
             case LOAD_GAME ->
             {
                 LoadGame msg = new Gson().fromJson(message, LoadGame.class);
@@ -83,7 +92,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         }
     }
 
-    public void displayNotification()
+    public void displayNotification(Notification notification)
     {}
 
     public void displayError(ServerErrorMessage error)
@@ -93,7 +102,8 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
     public void loadGame(LoadGame load)
     {
-        System.out.println("\n" + printBoard(whitePlayer));
+        game = load.getGame().game();
+        System.out.println("\n" + printBoard(whitePerspective(color)));
     }
 
     public String eval(String input) throws ResponseException
@@ -145,8 +155,6 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             throw new ResponseException(500, "Error: " + e.getMessage());
         }
 
-        whitePlayer = true;
-
         return "You are observing game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE + ".\n";
     }
 
@@ -180,6 +188,11 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 			- leave
 			- help
 			""";
+    }
+
+    private boolean whitePerspective(ChessGame.TeamColor color)
+    {
+        return color == ChessGame.TeamColor.WHITE;
     }
 
     private String printBoard(boolean whitePerspective)
