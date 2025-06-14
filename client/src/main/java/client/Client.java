@@ -156,7 +156,7 @@ public class Client
 		games = facade.listGames(authToken);
 		game = games.get(clientGameID - 1);
 
-		GameClient gameClient = new GameClient(game, color, authToken);
+		GameClient gameClient = new GameClient(repl, game, color, authToken);
 		repl.passGameClient(gameClient);
 
 		return gameClient.joinGame(authToken, username, color);
@@ -171,7 +171,7 @@ public class Client
 		int clientGameID = validateGameID(params[0]);
 		GameData game = games.get(clientGameID - 1);
 
-		GameClient gameClient = new GameClient(game, ChessGame.TeamColor.WHITE, authToken);
+		GameClient gameClient = new GameClient(repl, game, ChessGame.TeamColor.WHITE, authToken);
 		repl.passGameClient(gameClient);
 
 		return gameClient.observeGame(authToken);

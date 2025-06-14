@@ -1,6 +1,7 @@
 package websocket;
 
 import chess.*;
+import client.REPL;
 import com.google.gson.Gson;
 import model.GameData;
 import serverfacade.ResponseException;
@@ -17,14 +18,16 @@ import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class GameClient extends Endpoint implements ServerMessageObserver
 {
+    private final REPL repl;
     public final GameData gameData;
     private ChessGame game;
     private final ChessGame.TeamColor color;
     private final String authToken;
     private final Session session;
 
-    public GameClient(GameData data, ChessGame.TeamColor color, String authToken) throws ResponseException
+    public GameClient(REPL repl, GameData data, ChessGame.TeamColor color, String authToken) throws ResponseException
     {
+        this.repl = repl;
         this.gameData = data;
         this.color = color;
         this.game = gameData.game();
@@ -100,7 +103,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
     public void displayError(ServerErrorMessage error)
     {
-        System.out.println(SET_TEXT_COLOR_RED + "Error: " + error.getErrorMessage() + RESET_TEXT_COLOR);
+        System.out.println(SET_TEXT_COLOR_RED + error.getErrorMessage() + RESET_TEXT_COLOR);
         System.out.print(RESET_TEXT_COLOR + "[" + gameData.gameName() + "] >>> " + SET_TEXT_COLOR_GREEN);
     }
 
@@ -138,6 +141,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         {
             UserGameCommand join = new UserGameCommand(CONNECT, authToken, gameData.gameID());
             this.session.getBasicRemote().sendText(new Gson().toJson(join));
+            repl.skipGamePrompt();
         }
         catch(IOException e)
         {
@@ -145,7 +149,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         }
 
         return "You have joined game: " + RESET_TEXT_COLOR + gameData.gameName() + SET_TEXT_COLOR_BLUE
-                + " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE + ".\n";
+                + " on the " + color + " team as " + RESET_TEXT_COLOR + username + SET_TEXT_COLOR_BLUE + ".";
     }
 
     public String observeGame(String authToken) throws ResponseException
@@ -165,7 +169,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
     public String redraw(String... params) throws ResponseException
 	{
-        assertCommandLength(0, "Redraw command has no additional inputs.", params);
+        assertCommandLength(0, "Redraw command has no additional inputs.\n", params);
 
         return printBoard(whitePerspective(color));
     }
@@ -187,8 +191,15 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
         sendCommand(new MakeMove(MAKE_MOVE, authToken, gameData.gameID(),move));
 
-        return String.format("You moved a %s from %s to %s.", game.getBoard().getPiece(start).getPieceType(),
-                move.getStartPosition(), move.getEndPosition());
+        try
+        {
+            return String.format("You moved a %s from %s to %s.", game.getBoard().getPiece(start).getPieceType(), move.getStartPosition(),
+                    move.getEndPosition());
+        }
+        catch(Exception e)
+        {
+            throw new ResponseException(500, e.getMessage());
+        }
     }
 
     public String resign(String... params) throws ResponseException
@@ -215,8 +226,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 			- move <start position> <end position> - Moves piece from start to end position (validates move is valid).
 			- resign
 			- leave
-			- help
-			""";
+			- help""";
     }
 
     private ChessPosition parseUserPosition(String input)
@@ -292,7 +302,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         {
             output.append(" " + col + " ");
         }
-        output.append(EMPTY + RESET_BG_COLOR + "\n");
+        output.append(EMPTY + RESET_BG_COLOR);
 
         return output.toString();
     }

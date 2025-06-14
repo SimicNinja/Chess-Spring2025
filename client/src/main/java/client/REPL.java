@@ -11,6 +11,7 @@ public class REPL
 	private final Client client;
 	private GameClient gameClient;
 	private boolean gameClientPresent = false;
+	private boolean skipGamePrompt = false;
 
 	public REPL(String serverUrl)
 	{
@@ -21,6 +22,11 @@ public class REPL
 	{
 		this.gameClient = gameClient;
 		gameClientPresent = true;
+	}
+
+	public void skipGamePrompt()
+	{
+		skipGamePrompt = true;
 	}
 
 	public void run()
@@ -63,7 +69,14 @@ public class REPL
 
 		while(!result.equals("leave"))
 		{
-			System.out.print(RESET_TEXT_COLOR + "[" + gameName + "] >>> " + SET_TEXT_COLOR_GREEN);
+			if(skipGamePrompt)
+			{
+				skipGamePrompt = false;
+			}
+			else
+			{
+				System.out.print("\n" + RESET_TEXT_COLOR + "[" + gameName + "] >>> " + SET_TEXT_COLOR_GREEN);
+			}
 			String line = scanner.nextLine();
 
 			try
@@ -77,7 +90,6 @@ public class REPL
 				System.out.print(SET_TEXT_COLOR_RED + msg);
 			}
 		}
-		System.out.println();
 		gameClientPresent = false;
 		gameClient = null;
 	}
