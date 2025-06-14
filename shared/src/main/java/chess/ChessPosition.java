@@ -77,7 +77,7 @@ public class ChessPosition
 	@Override
 	public String toString()
 	{
-		char column = (char) (63 + col);
+		char column = (char) (64 + col);
 
 		return column + Integer.toString(row);
 	}
