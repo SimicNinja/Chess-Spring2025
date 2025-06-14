@@ -12,6 +12,9 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ui.EscapeSequences.*;
 import static websocket.commands.UserGameCommand.CommandType.*;
@@ -110,7 +113,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
     public void loadGame(LoadGame load)
     {
         game = load.getGame().game();
-        System.out.println("\n" + printBoard(whitePerspective(color)));
+        System.out.println("\n" + printBoard(whitePerspective(color), null, null));
         System.out.print(RESET_TEXT_COLOR + "[" + gameData.gameName() + "] >>> " + SET_TEXT_COLOR_GREEN);
     }
 
@@ -171,12 +174,24 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 	{
         assertCommandLength(0, "Redraw command has no additional inputs.\n", params);
 
-        return printBoard(whitePerspective(color));
+        return printBoard(whitePerspective(color), null, null);
     }
 
-    public String highlight(String... params)
-    {
-        return "";
+    public String highlight(String... params) throws ResponseException
+	{
+        assertCommandLength(1, "Expected: highlight <position> (e.g. 'highlight e4')", params);
+        ChessPosition position = parseUserPosition(params[0]);
+        ChessPiece piece = game.getBoard().getPiece(position);
+
+        if(piece == null)
+        {
+            throw new IllegalStateException("No piece at " + position + ".");
+        }
+
+        Collection<ChessMove> moves = game.validMoves(position);
+        Set<ChessPosition> highlights = moves.stream().map(ChessMove::getEndPosition).collect(Collectors.toSet());
+
+        return printBoard(whitePerspective(color), position, highlights);
     }
 
     public String makeMove(String... params) throws ResponseException
@@ -190,7 +205,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
         if(piece == null)
         {
-            throw new IllegalStateException("You selected an empty start position. Please try again.");
+            throw new IllegalStateException("No piece at " + start + ".");
         }
 
         ChessMove move = new ChessMove(start, end, null);
@@ -264,7 +279,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         return color == ChessGame.TeamColor.WHITE;
     }
 
-    private String printBoard(boolean whitePerspective)
+    private String printBoard(boolean whitePerspective, ChessPosition start, Set<ChessPosition> highlights)
     {
         StringBuilder output = new StringBuilder();
         ChessBoard board = game.getBoard();
@@ -294,8 +309,14 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             for(int i = 0; i < 8; i++)
             {
                 int col = whitePerspective ? i + 1 : 8 - i;
-                output.append(printSquare(isWhite));
+                ChessPosition current = new ChessPosition(row, col);
+
+                output.append(printSquare(current, isWhite, start, highlights));
+
+                //Toggle white & black
                 isWhite = !isWhite;
+
+                //Print piece
                 output.append(printPiece(board.getPiece(new ChessPosition(row, col))));
             }
             isWhite = !isWhite;
@@ -314,16 +335,17 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         return output.toString();
     }
 
-    private String printSquare(boolean isWhite)
+    private String printSquare(ChessPosition current, boolean isWhite, ChessPosition start, Set<ChessPosition> highlights)
     {
-        if(isWhite)
+        if(current.equals(start))
         {
-            return SET_BG_COLOR_LIGHT_GREY;
+            return SET_BG_COLOR_YELLOW;
         }
-        else
+        if(highlights != null && highlights.contains(current))
         {
-            return SET_BG_COLOR_DARK_GREY;
+            return isWhite ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;
         }
+        return isWhite ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
     }
 
     private String printPiece(ChessPiece piece)

@@ -72,6 +72,10 @@ public class ChessPiece
 	 */
 	public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition)
 	{
+		if(calculator == null)
+		{
+			makeCalculator();
+		}
 		return  calculator.pieceMoves(board, myPosition);
 	}
 
