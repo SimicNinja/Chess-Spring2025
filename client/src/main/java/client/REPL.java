@@ -87,7 +87,7 @@ public class REPL
 			catch(Throwable e)
 			{
 				var msg = e.getMessage();
-				System.out.print(SET_TEXT_COLOR_RED + msg);
+				System.out.print(SET_TEXT_COLOR_RED + "Client Error: " + msg);
 			}
 		}
 		gameClientPresent = false;

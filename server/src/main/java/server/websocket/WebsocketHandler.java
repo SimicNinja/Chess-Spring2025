@@ -58,11 +58,11 @@ public class WebsocketHandler
         }
         catch(UnauthorizedException e)
         {
-            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: Unauthorized"));
+            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Server Error: Unauthorized"));
         }
         catch(Exception e)
         {
-            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: " + e.getMessage()));
+            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Server Error: " + e.getMessage()));
         }
     }
 
@@ -132,7 +132,7 @@ public class WebsocketHandler
         }
         catch(InvalidMoveException | DataAccessException e)
         {
-            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: " + e.getMessage()));
+            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Server Error: " + e.getMessage()));
         }
     }
 
@@ -161,7 +161,7 @@ public class WebsocketHandler
         }
         catch(DataAccessException e)
         {
-            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error " + e.getMessage()));
+            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Server Error: " + e.getMessage()));
         }
     }
 
@@ -190,7 +190,7 @@ public class WebsocketHandler
         }
         catch(DataAccessException | InvalidMoveException e)
         {
-            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Error: " + e.getMessage()));
+            sendMessage(session.getRemote(), new ServerErrorMessage(ERROR, "Server Error: " + e.getMessage()));
         }
     }
 

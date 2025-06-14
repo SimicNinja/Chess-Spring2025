@@ -45,7 +45,7 @@ public class Client
 			case "help" -> help();
             default ->
             {
-                System.out.print(SET_TEXT_COLOR_RED + "Error: Not a valid command.\n");
+                System.out.print(SET_TEXT_COLOR_RED + "Client Error: Not a valid command.\n");
                 yield help();
             }
         };

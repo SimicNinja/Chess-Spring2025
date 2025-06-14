@@ -129,7 +129,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             case "help" -> help();
             default ->
             {
-                System.out.print(SET_TEXT_COLOR_RED + "Error: Not a valid command.\n");
+                System.out.print(SET_TEXT_COLOR_RED + "Client Error: Not a valid command.\n");
                 yield help();
             }
         };
@@ -248,7 +248,8 @@ public class GameClient extends Endpoint implements ServerMessageObserver
             case 'f', 'F' -> 6;
             case 'g', 'G' -> 7;
             case 'h', 'H' -> 8;
-            default -> throw new IllegalStateException("Unexpected value: " + letter);
+            default -> throw new IllegalStateException("Unexpected value: " + letter + "\n" + SET_TEXT_COLOR_YELLOW +
+                    "Please format your positions with the column letter first and then the row number. Ex: e4" + RESET_TEXT_COLOR);
         };
     }
 
