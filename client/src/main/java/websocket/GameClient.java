@@ -197,19 +197,28 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
 	public String makeMove(String... params) throws ResponseException
 	{
-		assertCommandLength(2, "Expected: <start position> <end position>\n" + SET_TEXT_COLOR_YELLOW +
-				"Please format your positions with the column letter first and then the row number. Ex: a7", params);
+		if(params.length < 2 || params.length > 3)
+		{
+			throw new ResponseException(400, "Expected: <start position> <end position>\n" + SET_TEXT_COLOR_YELLOW +
+					"Please format your positions with the column letter first and then the row number. Ex: a7");
+		}
 
 		ChessPosition start = parseUserPosition(params[0]);
 		ChessPosition end = parseUserPosition(params[1]);
+		ChessPiece.PieceType promotion = null;
 		ChessPiece piece = game.getBoard().getPiece(start);
+
+		if(params.length == 3)
+		{
+			promotion = parseUserPromotion(params[2]);
+		}
 
 		if(piece == null)
 		{
 			throw new IllegalStateException("No piece at " + start + ".");
 		}
 
-		ChessMove move = new ChessMove(start, end, null);
+		ChessMove move = new ChessMove(start, end, promotion);
 
 		try
 		{
@@ -276,6 +285,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 			- redraw - Redraws chess board.
 			- highlight <position> - Highlights legal moves of piece at specified position.
 			- move <start position> <end position> - Moves piece from start to end position (validates move is valid).
+			- move <start> <end> <promote> - Optional variation on move command that allows for pawn promotion.
 			- resign
 			- leave
 			- help""";
@@ -291,7 +301,8 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
 	private int parseColumnLetter(char letter)
 	{
-		return switch(letter) {
+		return switch(letter)
+		{
 			case 'a', 'A' -> 1;
 			case 'b', 'B' -> 2;
 			case 'c', 'C' -> 3;
@@ -302,6 +313,19 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 			case 'h', 'H' -> 8;
 			default -> throw new IllegalStateException("Unexpected value: " + letter + "\n" + SET_TEXT_COLOR_YELLOW +
 					"Please format your positions with the column letter first and then the row number. Ex: e4" + RESET_TEXT_COLOR);
+		};
+	}
+
+	private ChessPiece.PieceType parseUserPromotion(String input)
+	{
+		return switch (input)
+		{
+			case "Queen", "queen" -> ChessPiece.PieceType.QUEEN;
+			case "Knight", "knight" -> ChessPiece.PieceType.KNIGHT;
+			case "Bishop", "bishop" -> ChessPiece.PieceType.BISHOP;
+			case "Rook", "rook" -> ChessPiece.PieceType.ROOK;
+			default -> throw new IllegalArgumentException("Unexpected value: " + input + "\n" + SET_TEXT_COLOR_YELLOW +
+					"Please choose from [Queen, Knight, Bishop, Rook]");
 		};
 	}
 
