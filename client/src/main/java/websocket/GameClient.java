@@ -1,12 +1,10 @@
 package websocket;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import com.google.gson.Gson;
 import model.GameData;
 import serverfacade.ResponseException;
+import websocket.commands.MakeMove;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
 import javax.websocket.*;
@@ -96,7 +94,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
     public void displayNotification(Notification notification)
     {
-        System.out.println(SET_TEXT_COLOR_GREEN + notification.getMessage() + RESET_TEXT_COLOR);
+        System.out.println(SET_TEXT_COLOR_YELLOW + notification.getMessage() + RESET_TEXT_COLOR);
     }
 
     public void displayError(ServerErrorMessage error)
@@ -174,9 +172,20 @@ public class GameClient extends Endpoint implements ServerMessageObserver
         return "";
     }
 
-    public String makeMove(String... params)
-    {
-        return "";
+    public String makeMove(String... params) throws ResponseException
+	{
+        assertCommandLength(2, "Expected: <start position> <end position>\n" + SET_TEXT_COLOR_YELLOW +
+                "Please format your positions with the column letter first and then the row number. Ex: a7", params);
+
+        ChessPosition start = parseUserPosition(params[0]);
+        ChessPosition end = parseUserPosition(params[1]);
+
+        ChessMove move = new ChessMove(start, end, null);
+
+        sendCommand(new MakeMove(MAKE_MOVE, authToken, gameData.gameID(),move));
+
+        return String.format("You moved a %s from %s to %s.", game.getBoard().getPiece(start).getPieceType(),
+                move.getStartPosition(), move.getEndPosition());
     }
 
     public String resign(String... params) throws ResponseException
@@ -207,6 +216,29 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 			""";
     }
 
+    private ChessPosition parseUserPosition(String input)
+    {
+        char col = input.charAt(0);
+        char row = input.charAt(1);
+
+        return new ChessPosition((int) row - '0', (int) parseColumnLetter(col));
+    }
+
+    private int parseColumnLetter(char letter)
+    {
+        return switch(letter) {
+            case 'a', 'A' -> 1;
+            case 'b', 'B' -> 2;
+            case 'c', 'C' -> 3;
+            case 'd', 'D' -> 4;
+            case 'e', 'E' -> 5;
+            case 'f', 'F' -> 6;
+            case 'g', 'G' -> 7;
+            case 'h', 'H' -> 8;
+            default -> throw new IllegalStateException("Unexpected value: " + letter);
+        };
+    }
+
     private boolean whitePerspective(ChessGame.TeamColor color)
     {
         return color == ChessGame.TeamColor.WHITE;
@@ -220,8 +252,8 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
         // Set up column labels
         String[] cols = whitePerspective
-                ? new String[]{"a", "b", "c", "d", "e", "f", "g", "h"}
-                : new String[]{"h", "g", "f", "e", "d", "c", "b", "a"};
+                ? new String[]{"A", "B", "C", "D", "E", "F", "G", "H"}
+                : new String[]{"H", "G", "F", "E", "D", "C", "B", "A"};
 
         // Print top labels
         output.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_BLUE + EMPTY);

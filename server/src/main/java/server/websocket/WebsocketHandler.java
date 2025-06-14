@@ -109,7 +109,7 @@ public class WebsocketHandler
             LoadGame load = new LoadGame(LOAD_GAME, gameData);
             connections.broadcast(null, gameID, load);
 
-            String msg = String.format("%s moved %s from %s to %s.", username, piece.getPieceType(),
+            String msg = String.format("%s moved a %s from %s to %s.", username, piece.getPieceType(),
                     move.getStartPosition(), move.getEndPosition());
             connections.broadcast(username, gameID, new Notification(NOTIFICATION, msg));
 

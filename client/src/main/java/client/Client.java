@@ -137,7 +137,7 @@ public class Client
 
 		facade.newGame(authToken, params[0]);
 
-		return "Successfully created game " + params[0];
+		return "Successfully created game " + params[0] + "\n" + list();
 	}
 
 	public String joinGame(String... params) throws ResponseException
