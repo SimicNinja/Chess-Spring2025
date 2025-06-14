@@ -59,9 +59,11 @@ public class REPL
 	{
 		Scanner scanner = new Scanner(System.in);
 		var result = "";
+		String gameName = gameClient.gameData.gameName();
+
 		while(!result.equals("leave"))
 		{
-			printPrompt();
+			System.out.print(RESET_TEXT_COLOR + "[" + gameName + "] >>> " + SET_TEXT_COLOR_GREEN);
 			String line = scanner.nextLine();
 
 			try

@@ -17,7 +17,7 @@ import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class GameClient extends Endpoint implements ServerMessageObserver
 {
-    private final GameData gameData;
+    public final GameData gameData;
     private ChessGame game;
     private final ChessGame.TeamColor color;
     private final String authToken;
@@ -95,17 +95,20 @@ public class GameClient extends Endpoint implements ServerMessageObserver
     public void displayNotification(Notification notification)
     {
         System.out.println(SET_TEXT_COLOR_YELLOW + notification.getMessage() + RESET_TEXT_COLOR);
+        System.out.print(RESET_TEXT_COLOR + "[" + gameData.gameName() + "] >>> " + SET_TEXT_COLOR_GREEN);
     }
 
     public void displayError(ServerErrorMessage error)
     {
         System.out.println(SET_TEXT_COLOR_RED + "Error: " + error.getErrorMessage() + RESET_TEXT_COLOR);
+        System.out.print(RESET_TEXT_COLOR + "[" + gameData.gameName() + "] >>> " + SET_TEXT_COLOR_GREEN);
     }
 
     public void loadGame(LoadGame load)
     {
         game = load.getGame().game();
         System.out.println("\n" + printBoard(whitePerspective(color)));
+        System.out.print(RESET_TEXT_COLOR + "[" + gameData.gameName() + "] >>> " + SET_TEXT_COLOR_GREEN);
     }
 
     public String eval(String input) throws ResponseException
