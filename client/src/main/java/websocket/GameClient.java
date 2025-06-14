@@ -93,11 +93,13 @@ public class GameClient extends Endpoint implements ServerMessageObserver
     }
 
     public void displayNotification(Notification notification)
-    {}
+    {
+        System.out.println(SET_TEXT_COLOR_GREEN + notification.getMessage() + RESET_TEXT_COLOR);
+    }
 
     public void displayError(ServerErrorMessage error)
     {
-        System.out.println(("Error: " + error.getErrorMessage()));
+        System.out.println(SET_TEXT_COLOR_RED + "Error: " + error.getErrorMessage() + RESET_TEXT_COLOR);
     }
 
     public void loadGame(LoadGame load)
