@@ -186,6 +186,12 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
         ChessPosition start = parseUserPosition(params[0]);
         ChessPosition end = parseUserPosition(params[1]);
+        ChessPiece piece = game.getBoard().getPiece(start);
+
+        if(piece == null)
+        {
+            throw new IllegalStateException("You selected an empty start position. Please try again.");
+        }
 
         ChessMove move = new ChessMove(start, end, null);
 
@@ -193,8 +199,8 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
         try
         {
-            return String.format("You moved a %s from %s to %s.", game.getBoard().getPiece(start).getPieceType(), move.getStartPosition(),
-                    move.getEndPosition());
+            repl.skipGamePrompt();
+            return String.format("You moved a %s from %s to %s.", piece.getPieceType(), start, end);
         }
         catch(Exception e)
         {

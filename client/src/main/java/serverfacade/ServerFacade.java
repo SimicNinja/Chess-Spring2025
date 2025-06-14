@@ -119,9 +119,9 @@ public class ServerFacade
 		{
 			message = switch(status)
 			{
-				case 400 -> "Error: Bad Request";
-				case 401 -> "Error: Unauthorized";
-				case 403 -> "Error: Already Taken";
+				case 400 -> "Server Error: Bad Request";
+				case 401 -> "Server Error: Unauthorized";
+				case 403 -> "Server Error: Already Taken";
 				default -> message;
 			};
 			throw new ResponseException(status, message);
