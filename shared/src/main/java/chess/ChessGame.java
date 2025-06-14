@@ -136,7 +136,19 @@ public class ChessGame
         ChessPiece piece = this.board.getPiece(move.getStartPosition());
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
 
-        if(piece != null && validMoves.contains(move) && piece.getTeamColor() == getTeamTurn() && !gameOver)
+        if(piece == null)
+        {
+            throw new InvalidMoveException("You haven't selected a piece.");
+        }
+        else if(piece.getTeamColor() != getTeamTurn())
+        {
+            throw new InvalidMoveException("It isn't your turn.");
+        }
+        else if(gameOver)
+        {
+            throw  new InvalidMoveException("The game has already ended.");
+        }
+        else if(validMoves.contains(move))
         {
             this.board.movePiece(move);
             setTeamTurn(otherTeam(getTeamTurn()));

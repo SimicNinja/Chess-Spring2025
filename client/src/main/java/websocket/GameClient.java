@@ -210,6 +210,12 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
         ChessMove move = new ChessMove(start, end, null);
 
+        if(!game.legalMove(move, game.getBoard()))
+        {
+            throw new IllegalStateException("Illegal move!\n" + SET_TEXT_COLOR_YELLOW +
+                    "Try using the highlight command." + RESET_TEXT_COLOR);
+        }
+
         sendCommand(new MakeMove(MAKE_MOVE, authToken, gameData.gameID(),move));
 
         try
