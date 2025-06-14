@@ -211,7 +211,11 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 
 		ChessMove move = new ChessMove(start, end, null);
 
-		if(!game.legalMove(move, game.getBoard()) || game.isGameOver())
+		try
+		{
+			game.makeMove(move);
+		}
+		catch(InvalidMoveException e)
 		{
 			throw new IllegalStateException("Illegal move!\n" + SET_TEXT_COLOR_YELLOW +
 					"Try using the highlight command." + RESET_TEXT_COLOR);
@@ -234,7 +238,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 	{
 		assertCommandLength(0, "Resign command has no additional inputs.", params);
 
-		System.out.print(SET_TEXT_COLOR_BLUE + "\nAre you sure you want to resign? <Y/N>\n"
+		System.out.print(SET_TEXT_COLOR_BLUE + "Are you sure you want to resign? <Y/N>\n"
 				+ RESET_TEXT_COLOR +  ">>> " + SET_TEXT_COLOR_GREEN);
 
 		String line = new Scanner(System.in).nextLine();
@@ -244,6 +248,7 @@ public class GameClient extends Endpoint implements ServerMessageObserver
 			case "Y" ->
 			{
 				sendCommand(new UserGameCommand(RESIGN, authToken, gameData.gameID()));
+				repl.skipGamePrompt();
 				yield "You have resigned from this game. You must leave the game using the command before you quit.";
 			}
 			case "N" ->

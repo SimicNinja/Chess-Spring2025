@@ -203,6 +203,7 @@ public class WebsocketHandler
             game.setGameOver();
             daoManager.getGames().setGame(gameID, game);
 
+            connections.broadcast(null, gameID, new LoadGame(LOAD_GAME, daoManager.getGames().getGame(gameID)));
             connections.broadcast(null, gameID, new Notification(NOTIFICATION, String.format("%s has resigned.", username)));
         }
         catch(DataAccessException | InvalidMoveException e)
